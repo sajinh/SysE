@@ -5,7 +5,9 @@ C NCLFORTSTART
 	real a(nhar), b(nhar), rcas(nhar,ilen), rsyn(nhar,ilen)
 C NCLEND
 c	program harfil
-c	removes the required number of harmonics from the data
+c	constructs the annual cycle of the data
+c       based on the required number of harmonics
+c       
 c  Function Parameter reference
 c  nhar =  integer; number of harmonics to remove
 c  var  =  float  ; reduced one dimensional input data array
@@ -19,7 +21,9 @@ c                 ; to make this routine more general, the n-dimensional
 c                 ; data is flattened out into a 1-D array
 c                 ; and written out sequentially
 c                 ; for an example see
-c sst = float     ; two dimensional output array
+c sst = float     ; two dimensional output array, time is the first dimension
+c                 ; a collapsed version of the spatial dimensions form the
+c                 ; second dimension
 c!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 c  Read the data into array SST
         
