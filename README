@@ -1,0 +1,14 @@
+# Using SysE
+
+SySE is a collection of NCL libraries for the time being. I plan to eventually
+make ruby bindings for the underlying C and fortran libraries, in the not too near unknown future :)
+
+You need to install NCL. Download and install instructions are available at
+http://www.ncl.ucar.edu/Download/install.shtml
+
+After this you may load the whole collection of libraries using the NCL load 
+command at the top of your scripts. For instance, you may do this after
+defining the environmental variable SysE to point to the root of this collection
+load "$SysE/lib/ncl/ncl_libs.ncl"
+
+
