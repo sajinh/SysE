@@ -48,6 +48,7 @@ SRC_DIRS.each do |dir|
 
     src_dir=File.join NCL_Libs, name, "fortran/source"
     obj_dir=File.join NCL_Libs, name, "fortran/shared"
+    directory obj_dir
     sources=Dir.glob("#{src_dir}/*.f*")
     sources.each do |src|
 
@@ -57,7 +58,7 @@ SRC_DIRS.each do |dir|
       file_nm=task_nm+".so"
       file_nm=File.join(obj_dir,file_nm)
 
-      file file_nm => src do |t|
+      file file_nm => [obj_dir, src] do |t|
         Dir.chdir(obj_dir) do
           puts "Creating #{file_nm}"
           wrapit(src,FORTRAN_COMPILER,COMPILER_OPTS)
