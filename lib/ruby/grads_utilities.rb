@@ -79,7 +79,7 @@ end
 
 def open_output_file
   @outfil=File.new(@nclFile,"w+")
-  @outfil.puts "load \"$AFS2/lib/ncl/helper_libs.ncl\"" if @debug
+  @outfil.puts "load \"$SysE/lib/ncl/helper_libs.ncl\"" if @debug
 end
 
 def cannot_handle_message

@@ -1,8 +1,10 @@
 
 FORTRAN_COMPILER="gfortran"
+
 SysE=ENV['SysE']
 NCL_Libs=File.join SysE, 'lib/ncl'
-SRC_DIRS=FileList["data_analysis","readers"]
+SRC_DIRS=FileList["data_analysis","readers", "writers", "ccsm"]
+COMPILER_OPTS=nil
 
 require File.join SysE, "lib/ruby/wrapit"
 
@@ -58,7 +60,7 @@ SRC_DIRS.each do |dir|
       file file_nm => src do |t|
         Dir.chdir(obj_dir) do
           puts "Creating #{file_nm}"
-          wrapit(src,FORTRAN_COMPILER,nil)
+          wrapit(src,FORTRAN_COMPILER,COMPILER_OPTS)
         end
       end
       task task_nm.to_sym => file_nm

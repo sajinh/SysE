@@ -1,0 +1,29 @@
+C NCLFORTSTART
+      subroutine write_intermediate_file(funit,hdate0, startloc0, 
+     + field0, units0, desc0, map_source0, xlvl, nx, ny, 
+     + iproj, startlat, startlon, deltalat, deltalon,
+     + dx, dy, xlonc, truelat1, truelat2, nlats0, slab,DEBUG)
+
+      implicit none
+
+      integer funit
+      integer IFV
+      character*(*) hdate0, startloc0, field0, units0, desc0, map_source0
+      real XFCST
+      real XLVL
+      integer NX
+      integer NY
+      integer nlats0
+      integer IPROJ
+      real STARTLAT
+      real STARTLON
+      real DELTALAT
+      real DELTALON
+      real DX
+      real DY
+      real XLONC
+      real TRUELAT1
+      real TRUELAT2
+      real slab(nx,ny)
+      logical DEBUG
+C NCLEND

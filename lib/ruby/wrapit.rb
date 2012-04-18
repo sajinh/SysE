@@ -17,7 +17,7 @@ def wrapit(fname,compiler,options=nil)
   end
   `#{compiler}  -fPIC -c #{options} #{basename}_W.c -I${NCARG_ROOT}/include`
   `#{compiler} -fPIC -c #{options} #{fname}`
-  `#{compiler} -fPIC -shared #{options}  -o #{basename}.so #{basename}_W.o #{basename}.o -l#{compiler}`
+  `#{compiler} -fPIC -shared #{options}  -o #{basename}.so #{basename}_W.o #{basename}.o -l#{File.basename(compiler)}`
 
   # remove intermediate files
   `rm #{basename}_W.c #{basename}_W.o #{basename}.o`

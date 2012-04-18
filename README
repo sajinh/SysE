@@ -11,8 +11,39 @@ command at the top of your scripts. For instance, you may do this after
 defining the environmental variable SysE to point to the root of this collection
 load "$SysE/lib/ncl/ncl_libs.ncl"
 
+## Creating Fortran Shared Objects
+
+Please run rake after this step from $SysE to recreate the fortran shared objects.
+By default the rake file uses gfortran. You may change it to a compiler of your choice
+by editing the variable FORTRAN_COMPILER at the top of the Rakefile. You may
+also pass in compiler options through COMPILER_OPTS
+
+## Command line utilities
 To use some of the command line functions provided with this collection, please
 add $SySE/bin to your $PATH variable
 
 for example export PATH=$SysE/bin:$PATH
 
+These utilities are 
+ 1. wrap_all.rb - a ruby alternative to the WRAPIT program supplied by NCL. This can
+    be used to compile Fortran sources for use with NCL. You can call it with
+    wrap_all.rb -f filename -c compiler --com_opts compiler_options
+  
+    The last two arguments are optional, with gfortran as the default compiler
+    and -fPIC as the default compiler option.
+
+ 2. ctl2ncl.rb - a ruby utility that generates the NCL needed to read a 
+     binary file described using a Grads control (ctl) file. 
+
+     ctl2ncl.rb -i CTLFILE -o NCLFILE -v vars -t time --plot
+
+     The first two options are required. The third and fourth option allows to select
+     variables and the time period of interest, respectively. The fourth option
+     lets you plot the data.
+
+3. check_rogue_ncl_func.rb - Some time ago I made a mistake while writing NCL functions.
+   I had the bad habit of manipulating the arguments/parameters of the function. This
+   resulted in a few unpleasant surprises.  I wrote this to catch these rogue functions.
+   Essentially it parses a given directory and checks if function parameters are modified
+   inside the function body. If that is true, it will write out a modified version of
+   the function in a separate file "org_filename_modified.ncl"

@@ -1,0 +1,14 @@
+
+C NCLFORTSTART
+      SUBROUTINE spline(x,y,n,yp1,ypn,y2) 
+       implicit none
+       INTEGER  n
+       REAL*8  yp1,ypn,x(n),y(n),y2(n) 
+C NCLEND
+
+C NCLFORTSTART
+  SUBROUTINE splint(xa,ya,y2a,n,x,y) 
+  implicit none
+  INTEGER  n 
+  REAL*8  x,y,xa(n),y2a(n),ya(n)
+C NCLEND

@@ -1,0 +1,16 @@
+C NCLFORTSTART
+      subroutine interpolate_to_pressure_levels(nz_WRF
+     c      ,nx_CAM,ny_CAM,nz_CAM 
+     c      ,PS, P_int, log_P_int,log_P 
+     c      ,field_data,field_data_int)
+
+       implicit none
+       integer nz_WRF
+       integer nx_CAM,ny_CAM,nz_CAM
+       real PS(nx_CAM,ny_CAM)
+       real P_int(nz_WRF)
+       real log_P_int(nz_WRF) 
+       real log_P(nx_CAM,ny_CAM,nz_CAM)
+       real field_data(nx_CAM,ny_CAM,nz_CAM)
+       real field_data_int(nx_CAM,ny_CAM,nz_WRF)
+C NCLEND
