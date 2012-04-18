@@ -1,0 +1,26 @@
+C NCLFORTSTART
+       	subroutine open_file(funit,fname)
+	implicit none
+	character*(*) fname
+        integer funit
+c NCLEND
+
+C NCLFORTSTART
+	subroutine write_data(funit,var,nmon)
+	implicit none
+	integer funit, nmon
+	real var(nmon)
+c NCLEND
+
+C NCLFORTSTART
+	subroutine write_header(funit,header)
+	implicit none
+	integer funit
+	character*(*) header
+c NCLEND
+
+C NCLFORTSTART
+	subroutine close_file(funit)
+        implicit none
+        integer funit
+c NCLEND

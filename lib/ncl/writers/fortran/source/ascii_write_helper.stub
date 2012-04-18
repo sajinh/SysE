@@ -1,0 +1,35 @@
+C NCLFORTSTART
+       	subroutine open_file(funit,fname)
+	implicit none
+	character*(*) fname
+        integer funit
+c NCLEND
+
+C NCLFORTSTART
+	subroutine write_string(funit,line)
+	implicit none
+	integer funit
+        character*(*) line
+c NCLEND
+
+C NCLFORTSTART
+	subroutine write_int_array(funit,iarray,ilen)
+	implicit none
+	integer funit
+        integer ilen
+        integer iarray(ilen)
+c NCLEND
+
+C NCLFORTSTART
+	subroutine write_real_array(funit,rarray,ilen)
+	implicit none
+	integer funit
+        integer ilen
+        real rarray(ilen)
+c NCLEND
+
+C NCLFORTSTART
+	subroutine close_file(funit)
+        implicit none
+        integer funit
+c NCLEND

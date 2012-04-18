@@ -11,4 +11,8 @@ command at the top of your scripts. For instance, you may do this after
 defining the environmental variable SysE to point to the root of this collection
 load "$SysE/lib/ncl/ncl_libs.ncl"
 
+To use some of the command line functions provided with this collection, please
+add $SySE/bin to your $PATH variable
+
+for example export PATH=$SysE/bin:$PATH
 

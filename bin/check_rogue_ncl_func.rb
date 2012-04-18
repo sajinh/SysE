@@ -1,6 +1,6 @@
-#! /bin/env ruby
+#! /usr/bin/env ruby
 require 'pathname'
-require File.join(File.dirname(__FILE__),'rogue_ncl_func')
+require File.join(File.dirname(__FILE__), '../lib/ruby', 'check_ncl_rogue_func')
 
 def usage()
   fn_name = File.basename($0)

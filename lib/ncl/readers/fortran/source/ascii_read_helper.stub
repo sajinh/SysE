@@ -1,0 +1,26 @@
+C NCLFORTSTART
+       	subroutine open_file(funit,fname)
+	implicit none
+	character*(*) fname
+        integer funit
+c NCLEND
+
+C NCLFORTSTART
+	subroutine read_string(funit,line)
+	implicit none
+	integer funit
+        character*(*) line
+c NCLEND
+
+C NCLFORTSTART
+	subroutine read_array(funit,val,nrow,ncol)
+	implicit none
+	integer funit,nrow,ncol
+        dimension val(nrow,ncol)
+c NCLEND
+
+C NCLFORTSTART
+	subroutine close_file(funit)
+        implicit none
+        integer funit
+c NCLEND
