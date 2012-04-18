@@ -9,7 +9,7 @@ http://www.ncl.ucar.edu/Download/install.shtml
 After this you may load the whole collection of libraries using the NCL load 
 command at the top of your scripts. For instance, you may do this after
 defining the environmental variable SysE to point to the root of this collection
-load "$SysE/lib/ncl/ncl_libs.ncl"
+load "$SysE/lib/ncl/helper_libs.ncl"
 
 ## Creating Fortran Shared Objects
 
