@@ -1,0 +1,15 @@
+C NCLFORTSTART
+      subroutine query_intermediate_file(funit,hdate0, 
+     + field0, units0, desc0, map_source0, xlvl, nx, ny, 
+     + iproj)
+
+      implicit none
+
+      integer funit
+      integer IFV
+      character*46 hdate0,  field0, units0, desc0, map_source0
+      real XLVL
+      integer NX
+      integer NY
+      integer IPROJ
+C NCLEND

@@ -1,0 +1,20 @@
+C NCLFORTSTART
+        subroutine open_file(funit,fname)
+          implicit none
+          character*(*) fname
+          integer funit
+C NCLEND
+C NCLFORTSTART
+        subroutine open_file_littleendian(funit,fname)
+          implicit none
+          character*(*) fname
+          integer funit
+C NCLEND
+
+C NCLFORTSTART
+        subroutine close_file(funit)
+        implicit none
+        integer funit
+c NCLEND
+
+

@@ -129,3 +129,79 @@ begin
                       funit,debug)
   return(ierr)
 end
+
+function pop2intermediate_file(sst, \
+                    time,  lat, lon,            \
+                      nt,  ny,  nx,             \
+                       funit,debug)
+begin
+  iflag=False
+  fprefix="SST"
+  pp("Writing intermediate files")
+  do itim = 0,nt-1
+    file_tim=time(itim)
+    hdat=construct_date_fnam(file_tim, fprefix)
+    hdate=(/hdat/)
+    fname=hdat@fname
+    pp("Writing out "+fname)
+    BinaryWriter::open_file_littleendian(funit,fname)
+    write_2d_field(funit,hdate,sst(itim,:,:),lat,lon,ny,nx,iflag,debug)
+    BinaryWriter::close_file(funit)
+  end do
+  ierr=0
+  return(ierr)
+end 
+
+function pop2wrf(fcsm,debug)
+begin
+  ierr=0
+  pp("Reading history file data")
+  sst    = fcsm->SST
+  pp("Read 2D vars")
+  ndims = dimsizes(sst)
+  nt    = ndims(0)
+  ny    = ndims(1)
+  nx    = ndims(2)
+  sst@name="SST"
+  lat=sst&lat
+  lon=sst&lon
+  time=sst&time
+
+  fill_value = -999.99
+  ; Interpolate SST
+  sst = where( (sst.le.0.0), fill_value , sst)
+  sst@missing_value = fill_value
+  sst@_FillValue    = fill_value
+
+;-----------------------------------------------------------------
+; Set the poisson_grid_fill variables
+; Global grid: Fill in over land             
+;-----------------------------------------------------------------
+  nscan = 1500             ; usually *much* fewer
+  eps   = 0.001            ; variable depended
+  gtype = True             ; Cyclic in longitude [global]
+  guess = 1                ; use zonal means
+  relc  = 0.6              ; standard relaxation coef
+  opt   = 0
+ 
+  if (debug)
+    sst@shaded = True
+    sst@map = True
+    pp("Before poisson fill")
+    DebugPlot(sst(0,:,:))
+  end if
+
+  pp("Start poison grid fill")
+  poisson_grid_fill( sst, gtype, guess, nscan, eps, relc, opt)
+
+  if (debug)
+    pp("After Poisson fill")
+    DebugPlot(sst(0,:,:))
+  end if
+  funit=10
+  ierr= pop2intermediate_file(sst, \
+                    time,  lat, lon,            \
+                      nt,  ny,  nx,             \
+                      funit,debug)
+  return(ierr)
+end
