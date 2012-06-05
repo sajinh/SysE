@@ -167,7 +167,7 @@ begin
   lon=sst&lon
   time=sst&time
 
-  fill_value = -999.99
+  fill_value = -1e+30
   ; Interpolate SST
   sst = where( (sst.le.0.0), fill_value , sst)
   sst@missing_value = fill_value
@@ -177,27 +177,27 @@ begin
 ; Set the poisson_grid_fill variables
 ; Global grid: Fill in over land             
 ;-----------------------------------------------------------------
-  nscan = 1500             ; usually *much* fewer
-  eps   = 0.001            ; variable depended
-  gtype = True             ; Cyclic in longitude [global]
-  guess = 1                ; use zonal means
-  relc  = 0.6              ; standard relaxation coef
-  opt   = 0
- 
-  if (debug)
-    sst@shaded = True
-    sst@map = True
-    pp("Before poisson fill")
-    DebugPlot(sst(0,:,:))
-  end if
+;  nscan = 1500             ; usually *much* fewer
+;  eps   = 0.001            ; variable depended
+;  gtype = True             ; Cyclic in longitude [global]
+;  guess = 1                ; use zonal means
+;  relc  = 0.6              ; standard relaxation coef
+;  opt   = 0
+; 
+;  if (debug)
+;    sst@shaded = True
+;    sst@map = True
+;    pp("Before poisson fill")
+;    DebugPlot(sst(0,:,:))
+;  end if
 
-  pp("Start poison grid fill")
-  poisson_grid_fill( sst, gtype, guess, nscan, eps, relc, opt)
+;  pp("Start poison grid fill")
+;  poisson_grid_fill( sst, gtype, guess, nscan, eps, relc, opt)
 
-  if (debug)
-    pp("After Poisson fill")
-    DebugPlot(sst(0,:,:))
-  end if
+;  if (debug)
+;    pp("After Poisson fill")
+;    DebugPlot(sst(0,:,:))
+;  end if
   funit=10
   ierr= pop2intermediate_file(sst, \
                     time,  lat, lon,            \
