@@ -3,7 +3,7 @@
 ; these will calculate climatology and write
 ; appropriate information and also calculate
 ; std dev or  other appropriate measures
-load "$AFS2/lib/ncl/writers/writem.ncl"
+load "$SysE/lib/ncl/writers/writem.ncl"
 
 ; + - + 
 ;procedure remove_unnecessary_attribute_of(var,att)
@@ -20,6 +20,7 @@ begin
   nrank=dimsizes(dimsizes(var))
   if nrank.lt.3 .or. nrank.gt.4
     print("This module cannot process your order : please check manual")
+    print("The rank of the variable is : "+nrank)
     printVarSummary(var)
     print("eXit")
     exit

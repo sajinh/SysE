@@ -346,5 +346,22 @@ end
 procedure DebugGraph(var)
 begin
   wks  = gsn_open_wks("x11","a graph")
-  plot = gsn_csm_y(wks,var,False)
+  res=True
+   if isatt(var,"markers")
+     res@xyMarkLineMode = "MarkLines"
+     res@xyMarkers = var@markers
+   end if
+   if isatt(var,"labels")
+     res@pmLegendDisplayMode = "Always"
+     res@xyExplicitLegendLabels = var@labels
+     res@pmLegendSide           = "Top"               ; Change location of 
+  res@pmLegendParallelPosF   = .05                 ; move units right
+  res@pmLegendOrthogonalPosF = 0.1                ; move units down
+  res@pmLegendWidthF         = 0.15                ; Change width and
+  res@pmLegendHeightF        = 0.18                ; height of legend.
+  res@lgLabelFontHeightF     = .03                 ; change font height
+  res@lgOrientation          = "horizontal"
+  res@lgPerimOn              = False    
+   end if
+  plot = gsn_csm_y(wks,var,res)
 end
