@@ -344,6 +344,13 @@ begin
   end if
 end
 
+procedure colored_map(var)
+begin
+  var@map=True
+  var@shaded=True
+  DebugPlot(var)
+end
+
 load "$SysE/lib/ncl/helpers/time_axis.ncl"
 procedure DebugGraph(var)
 begin
