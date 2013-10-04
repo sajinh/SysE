@@ -447,8 +447,65 @@ begin
   write_data_for_each_year(var,var_name,y1,y2,outdir)
 end
 
-procedure Make_CMS_Climatology(opt)
+procedure SysE_timeerror(tv,tsiz)
 begin
+  if tsiz.lt.8 .or. tsiz.gt.9
+    print("Error in Time specification")
+    print("Time to be specified as ddMONyyyy, e.g. 20Jan2006")
+    print("However current time is provided as "+tv)
+    print("eXiT")
+    exit
+  end if
+end
+procedure SysE_timeparser(tvals,yr1,yr2,mo1,mo2,dy1,dy2)
+local tv1, tv2, tsiz, tim1, tim2
+begin
+  tv1=tvals(0)
+  tv2=tvals(1)
+  tim1 = stringtochar(tv1)
+  tim2 = stringtochar(tv2)
+  tsiz =  sizeof(tim1)-1
+  SysE_timeerror(tv1,tsiz)
+  yr1=(chartostring(tim1(tsiz-4:tsiz-1)))
+  mo1=chartostring(tim1(tsiz-7:tsiz-5))
+  dy1=(chartostring(tim1(:tsiz-8)))
+
+  tsiz =  sizeof(tim2)-1
+  SysE_timeerror(tv2,tsiz)
+  yr2=(chartostring(tim2(tsiz-4:tsiz-1)))
+  mo2=chartostring(tim2(tsiz-7:tsiz-5))
+  dy2=(chartostring(tim2(:tsiz-8)))
+end
+function SysE_year_chunks(nyr, nslices, yr1)
+local year0, year1, nyr_chunk, i
+begin
+  if nyr .lt. nslices
+    terminate_program("opt@NumSlices more than number of years")
+  end if
+  year0=new(nslices, integer)
+  year1=new(nslices, integer)
+  nyr_chunk = nyr/nslices
+  rem_chunk = nyr%nslices
+  do i = 0,nslices-1
+    year0(i) = stringtointeger(yr1)+i*nyr_chunk
+  end do
+  year1 = year0+nyr_chunk-1
+  weights=year1*1.0
+  weights=1.0*nyr_chunk/nyr
+  year1(nslices-1) = year1(nslices-1)+rem_chunk
+  weights(nslices-1) = 1.0*(nyr_chunk+rem_chunk)/nyr
+  if sum(weights) .ne. 1
+    pp(array_join(weights," : "))
+    terminate_program("Error in calculating weights for chunks")
+  end if
+  year0@end_year=year1
+  year0@weights=weights
+  return(year0)
+end
+procedure Make_CMS_Climatology(opt)
+local opt0
+begin
+  opt0 = opt
   allowed_freq=(/"Monthly","Daily"/)
 
   if .not.any(allowed_freq.eq.opt@DataFreq)
@@ -463,61 +520,132 @@ begin
   end if
 
   opt@Time=opt@ClimPeriod
-  print("Retrieving requested data for climate construction")
-  var=slice_data(opt)
-  tunits="days since 1900-01-01"
-
-  print("Make Climatology")
-  if opt@DataFreq.eq."Monthly"
-    clim = clmMonTLL(var)
-    std  = stdMonTLL(var)
-    ntim=12
-    time=make_monthly_time(1904,1,15,1904,12,15,tunits,ntim)
+  num_slices=1  ; To reduce RAM requirement for climatological calculations
+  if isatt(opt,"NumSlices")
+    num_slices = opt@NumSlices 
   end if
+  __tvals = opt@Time
+  __tv1 = __tvals(0)
+  __tv2 = __tvals(1)
+  pp(__tv1)
+  pp(__tv2)
+  __yr1="0"
+  __mo1="0"
+  __dy1="0"
+  __yr2="0"
+  __mo2="0"
+  __dy2="0"
 
-  if opt@DataFreq.eq."Daily" 
-    time    = var&time
-    TIME    = ut_calendar(time, 0)          ; type float 
-    delete(time)
-    year    = floattointeger( TIME(:,0) )
-    month   = floattointeger( TIME(:,1) )
-    day     = floattointeger( TIME(:,2) ) 
-    ddd     = day_of_year(year, month, day) 
-    yyyyddd = year*1000 + ddd
-    clim=clmDayTLL(var,yyyyddd) 
-    std=stdDayTLL(var,yyyyddd) 
-    ntim=366
-    time=make_daily_time(1904,1,15,1904,12,15,tunits,ntim)
-  end if
-  CPeriod=opt@ClimPeriod
+  SysE_timeparser(__tvals,__yr1,__yr2,__mo1,__mo2,__dy1,__dy2)
+  pp(__yr1+"-"+__mo1+"-"+__dy1)
+  pp(__yr2+"-"+__mo2+"-"+__dy2)
+  __nyr = stringtoint(__yr2)-stringtoint(__yr1)+1
+
+  nchunks=SysE_year_chunks(__nyr, num_slices, __yr1)
+  nchunke=nchunks@end_year
+  chunk_wgt=nchunks@weights
+  pp(array_join(nchunks,"->"))
+  pp(array_join(nchunks@end_year,"->"))
+  last_day="31Dec"
+  do irpt = 0,num_slices-1
+    if irpt.eq.num_slices-1
+      last_day = __dy2+__mo2
+    end if
+    clim_period = (/__dy1+__mo1+nchunks(irpt), last_day+nchunke(irpt)/)
+    pp("Retrieving requested data for climate construction")
+    pp(".............getting subset "+array_join(clim_period,"->"))
+    
+    delete(opt@Time)
+    opt@Time=clim_period
+    var=slice_data(opt)
+    tunits="days since 1900-01-01"
+
+    if opt@DataFreq.eq."Monthly"
+      print("Make Monthly Climatology")
+      clim = clmMonTLL(var)
+      std  = stdMonTLL(var)
+      ntim=12
+      if irpt.eq.0
+        clim_time=make_monthly_time(1904,1,15,1904,12,15,tunits,ntim)
+      end if
+    end if
+
+    if opt@DataFreq.eq."Daily" 
+      print("Make Daily Climatology")
+      time    = var&time
+      TIME    = ut_calendar(time, 0)          ; type float 
+      delete(time)
+      year    = floattointeger( TIME(:,0) )
+      month   = floattointeger( TIME(:,1) )
+      day     = floattointeger( TIME(:,2) ) 
+      ddd     = day_of_year(year, month, day) 
+      yyyyddd = year*1000 + ddd
+      clim=clmDayTLL(var,yyyyddd) 
+      std=stdDayTLL(var,yyyyddd) 
+      delete(TIME)
+      delete(year)
+      delete(month)
+      delete(day)
+      delete(ddd)
+      delete(yyyyddd)
+      ntim=366
+      if irpt.eq.0
+        clim_time=make_daily_time(1904,1,15,1904,12,15,tunits,ntim)
+      end if
+       
+    end if
+    if irpt.eq.0
+      slc_clim = clim
+      slc_std = std
+      slc_clim= (/ clim*chunk_wgt(irpt) /)
+      slc_std= (/ std*chunk_wgt(irpt) /)
+    else
+      slc_clim= (/ slc_clim+(clim*chunk_wgt(irpt)) /)
+      slc_std= (/ slc_std+(std*chunk_wgt(irpt)) /)
+    end if
+    delete(clim)
+    delete(std)
+    delete(var)
+  end do
+  clim = slc_clim
+  std = slc_std
+  delete(slc_clim)
+  delete(slc_std)
+  CPeriod=opt0@ClimPeriod
   CPeriod@join=" "
   clim@ClimPeriod=array_to_string(CPeriod)
 
-  dataSrc   = str_upper(opt@DataSource)
-  dataFrq   = capitalize(opt@DataFreq)
+  dataSrc   = str_upper(opt0@DataSource)
+  dataFrq   = capitalize(opt0@DataFreq)
   dataTyp   = "Climatology"
-  outdir    = create_outdir((/opt@DataRoot,dataSrc,dataFrq,dataTyp/))
+  outdir    = create_outdir((/opt0@DataRoot,dataSrc,dataFrq,dataTyp/))
   remove_xtra_slashes_of(outdir)
   print(outdir)
   dims=dimsizes(clim)
+print(dims)
+info(clim)
   ntim=dims(0)
   nlat=dims(1)
   nlon=dims(2)
-  nlev=1
+  nlev=2
   clim2=new( (/ntim,nlev,nlat,nlon/), typeof(clim) )
   clim2(:,0,:,:)=clim
   clim2(:,1,:,:)=std ; std dev code for TLL
   delete(clim2&$clim2!0$)
-  ;printVarSummary(clim2)
+  printVarSummary(clim2)
   clim2!0="time"
-  clim2&time=time
+  clim2&time=clim_time
   clim2!1="level"
   clim2&level=ispan(1,nlev,1)
   clim2&level@description="climatology"
-  vname=opt@vname
+  if isatt(opt0,"COARDS") ; make level to appear as depth
+    clim2&level@long_name="depth"
+    clim2&level@units="m"
+  end if
+  vname=opt0@vname
   var_name=vname
-  if isatt(opt,"Lev")
-   var_name=var_name+"_"+opt@Lev
+  if isatt(opt0,"Lev")
+   var_name=var_name+"_"+opt0@Lev
   end if
   make_the_dir(outdir)
   outfil    = create_file_if_not_exists(outdir,var_name)
@@ -531,8 +659,8 @@ begin
   remove_unnecessary_attribute_of(clim2,"valid_range")
   remove_unnecessary_attribute_of(clim2,"actual_range")
   remove_unnecessary_attribute_of(clim2,"precision")
-  if isatt(opt,"FillGaps")
-    clim2=CMS_FillGaps(clim2,opt@FillGaps)
+  if isatt(opt0,"FillGaps")
+    clim2=CMS_FillGaps(clim2,opt0@FillGaps)
   end if
   print("Write Climatology to DataBase")
   write_TLLL(fout,vname,clim2)

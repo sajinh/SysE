@@ -365,13 +365,13 @@ if typeof(file_yrs).eq."integer"
   end if
 
   yr1=stringtoint(chartostring(tim1(nsiz-4:nsiz-1)))
-  smo1=changeCase(chartostring(tim1(nsiz-7:nsiz-5)),"up")
+  smo1=str_upper(chartostring(tim1(nsiz-7:nsiz-5)))
   dy1=stringtoint(chartostring(tim1(:nsiz-8)))
 
 
   nsiz=sizeof(tim2)-1
   yr2=stringtoint(chartostring(tim2(nsiz-4:nsiz-1)))
-  smo2=changeCase(chartostring(tim2(nsiz-7:nsiz-5)),"up")
+  smo2=str_upper(chartostring(tim2(nsiz-7:nsiz-5)))
   dy2=stringtoint(chartostring(tim2(:nsiz-8)))
 
   mo1=integer_value_of_month(smo1)
@@ -380,29 +380,29 @@ if typeof(file_yrs).eq."integer"
   tunits=TimeUnits ; retrieved from top-level Defaults file
 
   if yr1.lt. min(file_yrs) .or. yr2.gt.max(file_yrs)
-  print("Prescribed Year not to be found in Data Base")
-  print("This could be either "+yr1+" or "+yr2)
-  exit
+    print("Prescribed Year not to be found in Data Base")
+    print("This could be either "+yr1+" or "+yr2)
+    exit
   else
-  nyrs=yr2-yr1+1
-  my_yrs=yr1+nyrs-1
+    nyrs=yr2-yr1+1
+    my_yrs=yr1+nyrs-1
   end if
 
 ; Check for consistent specification
 
   if nlat.eq.0 .or. nlon.eq.0 .or. nyrs.eq.0
-  print("At least one latitude, longitude and time point to be specified")
-  print("Current specs are given below: ")
-  printVarSummary(domain)
-  exit
+    print("At least one latitude, longitude and time point to be specified")
+    print("Current specs are given below: ")
+    printVarSummary(domain)
+    exit
   end if
 end if
 
   if nlat.eq.0 .or. nlon.eq.0 
-  print("At least one latitude and longitude point to be specified")
-  print("Current specs are given below: ")
-  printVarSummary(domain)
-  exit
+    print("At least one latitude and longitude point to be specified")
+    print("Current specs are given below: ")
+    printVarSummary(domain)
+    exit
   end if
 
 _datFreq=domain@DataFreq
@@ -608,13 +608,11 @@ end
 
 procedure debug_checker(opt,vals)
 begin
-
-if isatt(opt,"DEBUG")
-vals@DEBUG=True
-else
-vals@DEBUG=False
-end if
-
+  if isatt(opt,"DEBUG")
+    vals@DEBUG=True
+  else
+    vals@DEBUG=False
+  end if
 end
 
 
@@ -659,7 +657,7 @@ domain@DataType="Anomaly" ; default data type
 domain@DataFreq=opt@DataFreq
 
 if isatt(opt,"DataType")
-  opt@DataType=changeCase(opt@DataType,"low")
+  opt@DataType=str_lower(opt@DataType)
   space_remover(opt@DataType)
 
   if opt@DataType.eq."mean"
@@ -673,7 +671,7 @@ if isatt(opt,"DataType")
   if opt@DataType.eq."climatology"
     domain@DataType="Climatology"
     ostat=opt@Statistic
-    ostat=changeCase(ostat,"low")
+    ostat=str_lower(ostat)
     if ostat.eq."mean"
       domain@nstat=0
     end if
@@ -719,8 +717,8 @@ end if
   CMS_subsetter(domain@lev1,domain@lev2,levs)
   end if
 
-  opt@DataSource=changeCase(opt@DataSource,"up")
-  vname=changeCase(opt@Variable,"low")
+  opt@DataSource=str_upper(opt@DataSource)
+  vname=str_lower(opt@Variable)
   vname@Access="Local"
   if isatt(opt,"Lev")
     vname@Lev=opt@Lev
@@ -793,6 +791,7 @@ begin
   if isatt(sopt,"DataRoot")
     opt@DataBaseDir=sopt@DataRoot
   end if
+
 
 ; Data is retrieved using a complex algorithm
   vdat=CMS_getdata(opt)
@@ -951,6 +950,35 @@ end if
 return(var)
 end
 
+function get_from_file(fname)
+begin
+  fin=fopen_read(fname)
+  return(fin->var)
+end
+procedure write_to_file(var,fname)
+begin
+  fot=fopen_write(fname)
+  fot->var=var
+end
+
+function slice_data_cached(sopt)
+local fname, fout
+begin
+  if .not. isatt(sopt,"LocalFile")
+    terminate_program("This needs an option - LocalFile (name of local file)")
+  end if
+  fname=sopt@LocalFile
+   if (isfilepresent(fname))
+     pp("Getting data from cache")
+     var=get_from_file(fname)
+   else
+     var=slice_data(sopt)
+     pp("Writing to cache "+fname)
+     write_to_file(var,fname)
+  end if
+  return(var)
+end
+
 function findFirstTimeOfCollection(DataDir)
 begin
   years=systemfunc("ls "+DataDir)
@@ -1023,10 +1051,10 @@ begin
     opt@DataType="Mean"
   end if
   DataDir=DataDir+"/"+opt@DataFreq+"/"+opt@DataType
-  if changeCase(opt@WhichTime,"low").eq."first"
+  if str_lower(opt@WhichTime).eq."first"
    return(findFirstTimeOfCollection(DataDir))
   end if
-  if  changeCase(opt@WhichTime,"low").eq."last"
+  if  str_lower(opt@WhichTime).eq."last"
     return(findLastTimeOfCollection(DataDir))
   end if
 end

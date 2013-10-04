@@ -1,3 +1,4 @@
+
 procedure mymap(res:logical,opt:logical)
 begin
 	if (opt.and.isatt(opt,"latlon")) then
@@ -343,6 +344,7 @@ begin
   end if
 end
 
+load "$SysE/lib/ncl/helpers/time_axis.ncl"
 procedure DebugGraph(var)
 begin
   wks  = gsn_open_wks("x11","a graph")
@@ -363,5 +365,14 @@ begin
   res@lgOrientation          = "horizontal"
   res@lgPerimOn              = False    
    end if
-  plot = gsn_csm_y(wks,var,res)
+  if isatt(var,"time")
+   pp("Plotting Time series")
+    res@YearInc = var@YearInc
+    res@MonthInc = var@MonthInc
+    res@NoMinor = var@NoMinor
+    plot = time_series_plot(wks,var&time,var,res)
+  else
+    plot = gsn_csm_y(wks,var,res)
+  end if
 end
+

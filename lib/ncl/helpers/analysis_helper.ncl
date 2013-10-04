@@ -241,17 +241,16 @@ end
 procedure partl_corr(y,x1,x2,a1,a2)
 
 begin
-r1y=escorc(x1,y)
-r2y=escorc(x2,y)
-r12=escorc(x1,x2)
+  r1y=escorc(x1,y)
+  r2y=escorc(x2,y)
+  r12=escorc(x1,x2)
 
-c=(1-r12^2)
-a1=r1y-r2y*r12
-a1=a1/sqrt(c*(r2y^2))
+  c=(1-r12^2)
+  a1=r1y-r2y*r12
+  a1=a1/sqrt(c*(1-r2y^2))
 
-a2=r2y-r1y*r12
-a2=a2/sqrt(c*(r1y^2))
-
+  a2=r2y-r1y*r12
+  a2=a2/sqrt(c*(1-r1y^2))
 end
 
 function isodd(var)
