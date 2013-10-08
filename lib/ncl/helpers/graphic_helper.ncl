@@ -306,7 +306,12 @@ begin
   else
     type="x11"
   end if
-  wks = openwks(type, "test", "testcmap")
+  if isatt(var,"fname")
+    fname=var@fname
+  else
+    fname="test"
+  end if
+  wks = openwks(type, fname, "testcmap")
   res = True
   opt = True
   if isatt(var,"clevs")
@@ -323,8 +328,8 @@ begin
   if isatt(var,"title")
     res@tiMainString=var@title
   end if
-  if isatt(var,"colors")
-     gsn_define_colormap(wks,var@colors)
+  if isatt(var,"colormap")
+     gsn_define_colormap(wks,var@colormap)
      res@gsnSpreadColors = False
   end if
   res@lbLabelBarOn=True
