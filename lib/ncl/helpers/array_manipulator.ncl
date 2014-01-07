@@ -165,7 +165,9 @@ begin
   newdims=dims
   newdims(dindex)=dims(rank-1)
   newdims(rank-1)=dims(dindex)
-  return(reorder_dims(var,newdims))
+  newvar=reorder_dims(var,newdims)
+  newvar@newdims=newdims
+  return(newvar)
 end
 
 function reorder_dims_as_in_template(from,to)
@@ -270,8 +272,10 @@ begin
 end
 function reduce_to_2D(var,opt)
 begin
+  vardims = getvardims(var)
   if opt .and. isatt(opt,"last_dim")
     new_var=ensure_last_dim(var,opt@last_dim)
+    vardims = new_var@newdims
   else
     new_var=var
   end if

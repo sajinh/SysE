@@ -355,6 +355,12 @@ begin
   var@shaded=True
   DebugPlot(var)
 end
+procedure shaded_plot(var)
+begin
+  var@shaded=True
+  DebugPlot(var)
+end
+
 
 load "$SysE/lib/ncl/helpers/time_axis.ncl"
 procedure DebugGraph(var)

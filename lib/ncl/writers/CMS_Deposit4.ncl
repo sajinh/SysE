@@ -622,8 +622,6 @@ begin
   remove_xtra_slashes_of(outdir)
   print(outdir)
   dims=dimsizes(clim)
-print(dims)
-info(clim)
   ntim=dims(0)
   nlat=dims(1)
   nlon=dims(2)

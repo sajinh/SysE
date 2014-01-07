@@ -30,7 +30,9 @@ function rank_of(var)
 local dims
 begin
   dims=dimsizes(var)
-  return(dimsizes(dims))
+  rank = dimsizes(dims)
+  rank@dims=dims
+  return(rank)
 end
 
 function chop(astring)
