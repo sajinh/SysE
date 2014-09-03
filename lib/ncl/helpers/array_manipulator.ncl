@@ -1,4 +1,5 @@
 function flatten_array(array)
+local igood
 begin
   igood=ind(.not. ismissing(array))
   return(array(igood))

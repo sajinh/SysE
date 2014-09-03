@@ -4,6 +4,7 @@
 ; appropriate information and also calculate
 ; std dev or  other appropriate measures
 load "$SysE/lib/ncl/writers/writem.ncl"
+load "$SysE/lib/ncl/data_analysis_helpers.ncl"
 
 ; + - + 
 ;procedure remove_unnecessary_attribute_of(var,att)
@@ -345,7 +346,13 @@ begin
       tindx=floattoint(tarray(:,1))
     end if
     if var@DataFreq.eq."Daily"
-      tindx=floattoint(tarray(:,2))
+      ; Below is a bug discovered 2 Sep 2014
+      ;tindx=floattoint(tarray(:,2))
+      ; Bug is corrected as follows (new code for tindx)
+      yarr=floattoint(tarray(:,0))
+      marr=floattoint(tarray(:,1))
+      darr=floattoint(tarray(:,2))
+      tindx = day_of_year(yarr,marr,darr)
     end if
     tindx=tindx-1
 
@@ -365,6 +372,9 @@ begin
     delete(tarray)
     delete(vtims)
     delete(tindx)
+    delete(yarr)
+    delete(marr)
+    delete(darr)
   end do
 return(vanom)
 end
@@ -392,7 +402,10 @@ begin
   ;printVarSummary(var)
   print("Retrieving climatology data")
   opt@DataType="Climatology"
+  opt@Statistic="mean"
   vclim=slice_data(opt)
+info(vclim)
+shaded_map(vclim(10,:,:))
   ;printVarSummary(vclim)
 
   time=var&time
@@ -417,7 +430,12 @@ begin
   if dataFrq.eq."Daily"
     ddd      = day_of_year(y1, m1, d1)
     yyyyddd  = y1*1000 + ddd
-    vclim_sm = smthClmDayTLL(vclim, opt@NumHarmonics) 
+    ;vclim_sm = smthClmDayTLL(vclim, opt@NumHarmonics) 
+    ; smthClmDayTLL does not work with SST or SSH (missing value data)
+    ; switch to constructed_anncycle on Sep 2, 2014 NHS
+    vclim_sm = constructed_anncycle(vclim, opt@NumHarmonics) 
+shaded_map(vclim_sm(10,:,:))
+info(vclim_sm)
     ;vanom    = calcDayAnomTLL (var, yyyyddd, vclim_sm)
     vanom=CMS_Anom (var,vclim_sm,y1,y2)
   end if

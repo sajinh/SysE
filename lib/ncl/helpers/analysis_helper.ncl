@@ -67,6 +67,11 @@ begin
 end
 
 
+function _3mon_seasons()
+begin
+return( (/"DJF","JFM","FMA","MAM","AMJ","MJJ","JJA",  \
+          "JAS","ASO","SON","OND","NDJ"/) )
+end
 function _seasons()
 begin
 return( (/"JFM","FMA","MAM","AMJ","MJJ","JJA",  \
@@ -268,6 +273,16 @@ begin
   return(odd)
 end
 
+function is_odd(var)
+begin
+  return(isodd(var))
+end
+
+function is_even(var)
+begin
+  return(.not.isodd(var))
+end
+
 
 procedure start_and_end(yy,mm,tunits,start_time,end_time)
 local start_time,end_time,e_month,yy,mm,nday,tunits
@@ -309,7 +324,8 @@ seasons=(/"JFM","FMA","MAM","AMJ","MJJ","JJA",  \
 
 ; The code below will match the required season
 ; against the array and find the corresponding index
-seas=changeCase(seas,"up")
+;seas=changeCase(seas,"up")
+seas=str_upper(seas)
 iseas=ind(seasons.eq.seas)
 
 ; Thus we find the starting and ending months of the season
@@ -501,7 +517,8 @@ seasons=(/"JFM","FMA","MAM","AMJ","MJJ","JJA",  \
 
 ; The code below will match the required season
 ; against the array and find the corresponding index
-seas=changeCase(seas,"up")
+;seas=changeCase(seas,"up")
+seas=str_upper(seas)
 iseas=ind(seasons.eq.seas)
 
 ; Thus we find the starting and ending months of the season
@@ -808,6 +825,20 @@ begin
     return(months(imon-1))
   end if
 end
+function integers_to_months(mons)
+begin
+  nmon=dimsizes(mons)
+  months=new(nmon,string)
+  do i = 0,nmon-1
+    mon = mons(i)
+    if isatt(mons,"longform")
+      mon@longform=True
+    end if
+    months(i) = integer_to_month(mon)
+  end do
+  return(months)
+end
+
 function integer_to_season(org_imon[1]:integer)
 begin
   imon=org_imon
@@ -838,23 +869,26 @@ end
 
 function array_to_string(var_arr)
 begin
- dims=dimsizes(var_arr)
+ sarr=tostring(var_arr)
+ dims=dimsizes(sarr)
  rank=dimsizes(dims)
    if rank.gt.1
      print("This function is for 1-D arrays")
      exit
    end if
  var_str=""
-if isatt(var_arr,"join")
-spc=var_arr@join
-else
-spc=""
-end if
+  if isatt(var_arr,"join")
+    spc=var_arr@join
+    else
+    spc=""
+  end if
 
-   do i = 0,dims-2
-     var_str=var_str+var_arr(i)+spc
-   end do
-   var_str=var_str+var_arr(dims-1)
+  do i = 0,dims-2
+    va = sarr(i)
+    var_str=var_str+va+spc
+  end do
+  va = sarr(dims-1)
+  var_str=var_str+va
 return(var_str)
 end
 
@@ -955,7 +989,8 @@ end
 function capitalize(org_aString)
 begin
   aString=org_aString
-  aString=changeCase(aString,"low")
+  ;aString=changeCase(aString,"low")
+  aString=str_lower(aString)
   stringChars=stringtocharacter(aString)
   firstChar=systemfunc("echo "+stringChars(0)+" | tr a-z A-Z")
   return(firstChar+charactertostring(stringChars(1:)))
@@ -1229,4 +1264,12 @@ begin
     needed_month@years=years+1
   end if
   return(needed_month)
+end
+
+function days_in_year(year)
+begin
+  if isleapyear(year)
+    return(366) 
+  end if
+  return(365)
 end

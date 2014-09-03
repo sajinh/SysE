@@ -77,23 +77,27 @@ end
 
 
 begin
-res                 = True                ; make plot mods
-        if (opt.and.isatt(opt,"clevs")) then
-        res@cnLevelSelectionMode = "ExplicitLevels"
-        res@cnLevels             = opt@clevs
-        end if
+  res                 = True                ; make plot mods
+  if (opt.and.isatt(opt,"clevs")) then
+    res@cnLevelSelectionMode = "ExplicitLevels"
+    res@cnLevels             = opt@clevs
+  end if
 
-
-res@lbLabelBarOn    = False
-res@cnSmoothingOn   = True
-res@cnFillOn              = True
-res@cnLinesOn             = False
-res@cnLineLabelsOn        = False    ; turn off line labels
-;res@cnLineColor = "black"
-res@cnInfoLabelOn         = False
-;res@gsnContourNegLineDashPattern = 1 ;
-res@gsnSpreadColors = True
-
+  res@lbLabelBarOn    = False
+  if isatt(opt,"label_bar")
+    if opt@label_bar
+      res@lbLabelBarOn=True
+      res@lbLabelAutoStride=True
+    end if
+  end if
+  res@cnSmoothingOn   = True
+  res@cnFillOn              = True
+  res@cnLinesOn             = False
+  res@cnLineLabelsOn        = False    ; turn off line labels
+  ;res@cnLineColor = "black"
+  res@cnInfoLabelOn         = False
+  ;res@gsnContourNegLineDashPattern = 1 ;
+  res@gsnSpreadColors = True
 end
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -299,21 +303,12 @@ begin
   res@gsnDraw=False
 end
 
-procedure DebugPlot(var)
+
+function plot_it(wks,var,res)
 begin
-  if isatt(var,"type")
-    type=var@type
-  else
-    type="x11"
-  end if
-  if isatt(var,"fname")
-    fname=var@fname
-  else
-    fname="test"
-  end if
-  wks = openwks(type, fname, "testcmap")
-  res = True
   opt = True
+  nodraw(res)
+  noframe(res)
   if isatt(var,"clevs")
     opt@clevs=var@clevs
   end if
@@ -347,6 +342,26 @@ begin
   else
     plot = gsn_csm_contour(wks,var,res)
   end if
+  return(plot)
+end
+
+procedure DebugPlot(var)
+begin
+  if isatt(var,"type")
+    type=var@type
+  else
+    type="x11"
+  end if
+  if isatt(var,"fname")
+    fname=var@fname
+  else
+    fname="test"
+  end if
+  wks = openwks(type, fname, "testcmap")
+  res=True
+  plot=plot_it(wks,var,res)
+  draw(plot)
+  frame(wks)
 end
 
 procedure colored_map(var)
@@ -355,10 +370,25 @@ begin
   var@shaded=True
   DebugPlot(var)
 end
+procedure shaded_map(var)
+begin
+  colored_map(var)
+end
 procedure shaded_plot(var)
 begin
   var@shaded=True
   DebugPlot(var)
+end
+function plot_shaded(wks,var,res)
+begin
+  var@shaded=True
+  return(plot_it(wks,var,res))
+end
+function map_shaded(wks,var,res)
+begin
+  var@shaded=True
+  var@map=True
+  return(plot_it(wks,var,res))
 end
 
 
@@ -394,3 +424,41 @@ begin
   end if
 end
 
+function plot_vector(wks,uvar,vvar,res)
+begin
+  opt = True
+  nodraw(res)
+  noframe(res)
+  if isatt(uvar,"title")
+    res@tiMainString=var@title
+  end if
+  if isatt(uvar,"map")
+    lat = uvar&lat
+    lon = uvar&lon
+    if isatt(uvar,"latlon")
+      opt@latlon=uvar@latlon
+    else
+      opt@latlon=(/min(lat),max(lat),min(lon),max(lon)/)
+    end if
+    mymap(res,opt)
+    plot = gsn_csm_vector_map(wks,uvar,vvar,res)
+  else
+    plot = gsn_csm_vector(wks,uvar,vvar,res)
+  end if
+  return(plot)
+end
+
+function plot_contour_n_vector(wks,cvar,uvar,vvar,res,vcres)
+begin
+  ; transfer attributes to cvar
+  ;atts=getvaratts(cvar)
+  ;do i = 0,dimsizes(atts)-1
+  ;  vcres@$atts(i)$=uvar@$atts(i)$
+  ;end do
+  plot1 = plot_it(wks,cvar,res)
+  nodraw(vcres)
+  noframe(vcres)
+  plot2 = plot_vector(wks,uvar,vvar,vcres)
+  overlay(plot1,plot2)
+  return(plot1)
+end

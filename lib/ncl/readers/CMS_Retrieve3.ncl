@@ -599,11 +599,9 @@ begin
   space_remover(val2)
   end if
 
-  if  vals@DEBUG
-  print(val1+" -- "+val2)
+  if  isatt(vals,"DEBUG")
+    print(val1+" -- "+val2)
   end if
-  
-
 end
 
 procedure debug_checker(opt,vals)
@@ -969,7 +967,7 @@ begin
   end if
   fname=sopt@LocalFile
    if (isfilepresent(fname))
-     pp("Getting data from cache")
+     pp("Getting data from cache "+fname)
      var=get_from_file(fname)
    else
      var=slice_data(sopt)
