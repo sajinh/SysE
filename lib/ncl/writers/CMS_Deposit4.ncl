@@ -353,6 +353,9 @@ begin
       marr=floattoint(tarray(:,1))
       darr=floattoint(tarray(:,2))
       tindx = day_of_year(yarr,marr,darr)
+      delete(yarr)
+      delete(marr)
+      delete(darr)
     end if
     tindx=tindx-1
 
@@ -372,9 +375,6 @@ begin
     delete(tarray)
     delete(vtims)
     delete(tindx)
-    delete(yarr)
-    delete(marr)
-    delete(darr)
   end do
 return(vanom)
 end
@@ -404,9 +404,6 @@ begin
   opt@DataType="Climatology"
   opt@Statistic="mean"
   vclim=slice_data(opt)
-info(vclim)
-shaded_map(vclim(10,:,:))
-  ;printVarSummary(vclim)
 
   time=var&time
   ntim=dimsizes(time)
@@ -434,8 +431,6 @@ shaded_map(vclim(10,:,:))
     ; smthClmDayTLL does not work with SST or SSH (missing value data)
     ; switch to constructed_anncycle on Sep 2, 2014 NHS
     vclim_sm = constructed_anncycle(vclim, opt@NumHarmonics) 
-shaded_map(vclim_sm(10,:,:))
-info(vclim_sm)
     ;vanom    = calcDayAnomTLL (var, yyyyddd, vclim_sm)
     vanom=CMS_Anom (var,vclim_sm,y1,y2)
   end if

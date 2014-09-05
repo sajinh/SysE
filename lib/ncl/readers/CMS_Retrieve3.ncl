@@ -119,6 +119,9 @@ begin
   do i=0,ndims-1
     newvar!i=new_dimnames(i)
   end do
+  newvar&level=lev ; nhs sep 5 - was not adding level info
+  newvar&level@long_name="level" ; nhs sep 5
+  newvar&level@units="depends"    ; nhs sep 5
 return(newvar)
 end
 

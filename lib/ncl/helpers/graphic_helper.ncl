@@ -140,61 +140,61 @@ end
 procedure myvectorfill(res:logical, opt:logical)
 
 begin
-res                 = True                ; make plot mods
+  res                 = True                ; make plot mods
         if (opt.and.isatt(opt,"clevs")) then
         res@cnLevelSelectionMode = "ExplicitLevels"
         res@cnLevels             = opt@clevs
         end if
 
-res@lbLabelBarOn    = False
-res@cnSmoothingOn   = True
-res@cnFillOn              = True
-res@cnLinesOn             = False
-res@cnLineColor = "black"
-res@cnLineLabelsOn        = False    ; turn off line labels
-res@cnInfoLabelOn         = False
-res@gsnScalarContour     = True
-res@gsnSpreadColors = True
+  res@lbLabelBarOn    = False
+  res@cnSmoothingOn   = True
+  res@cnFillOn              = True
+  res@cnLinesOn             = False
+  res@cnLineColor = "black"
+  res@cnLineLabelsOn        = False    ; turn off line labels
+  res@cnInfoLabelOn         = False
+  res@gsnScalarContour     = True
+  res@gsnSpreadColors = True
 
-res@mpMonoFillColor       = True
-res@mpFillOn  = False
-res@mpDefaultFillColor = "white"
-res@mpDefaultFillPattern=-1
-res@mpOutlineOn           = True
-res@mpOutlineDrawOrder = "PostDraw"
+  res@mpMonoFillColor       = True
+  res@mpFillOn  = False
+  res@mpDefaultFillColor = "white"
+  res@mpDefaultFillPattern=-1
+  res@mpOutlineOn           = True
+  res@mpOutlineDrawOrder = "PostDraw"
 end
 
 procedure setvcskip(res,skip)
 begin
-res@vcMinDistanceF = skip ; to thin out the arrows
+  res@vcMinDistanceF = skip ; to thin out the arrows
 end
 
 
 procedure setvcscl(res,mag,len)
 begin
-res@vcRefMagnitudeF           = mag
-res@vcRefLengthF              = len
+  res@vcRefMagnitudeF           = mag
+  res@vcRefLengthF              = len
 end
 
 procedure setvc(res,color,style,thick)
 ;# Styles are "FillArrow", "LineArrow", "WindBarb", "CurlyVector"
 begin
-res@vcGlyphStyle            = style
-res@vcLineArrowColor        = color           ; change vector color
-res@vcLineArrowThicknessF   = thick               ; change vector thickness
-res@vcVectorDrawOrder       = "PostDraw"  
+  res@vcGlyphStyle            = style
+  res@vcLineArrowColor        = color           ; change vector color
+  res@vcLineArrowThicknessF   = thick               ; change vector thickness
+  res@vcVectorDrawOrder       = "PostDraw"  
 end
 
 procedure setvcanno(res,color,up)
 begin
-res@vcRefAnnoOrthogonalPosF   = up
-res@vcRefAnnoArrowLineColor   = color
-res@vcRefAnnoArrowUseVecColor = False           ; don't use vec color for ref
+  res@vcRefAnnoOrthogonalPosF   = up
+  res@vcRefAnnoArrowLineColor   = color
+  res@vcRefAnnoArrowUseVecColor = False           ; don't use vec color for ref
 end
 
 procedure novcanno(res)
 begin
-res@vcRefAnnoOn=False
+  res@vcRefAnnoOn=False
 end
 
 procedure setcn(res,clr,thick)
@@ -364,8 +364,9 @@ begin
   frame(wks)
 end
 
-procedure colored_map(var)
+procedure colored_map(__var)
 begin
+  var=__var
   var@map=True
   var@shaded=True
   DebugPlot(var)
@@ -374,18 +375,21 @@ procedure shaded_map(var)
 begin
   colored_map(var)
 end
-procedure shaded_plot(var)
+procedure shaded_plot(__var)
 begin
+  var=__var
   var@shaded=True
   DebugPlot(var)
 end
-function plot_shaded(wks,var,res)
+function plot_shaded(wks,__var,res)
 begin
+  var=__var
   var@shaded=True
   return(plot_it(wks,var,res))
 end
-function map_shaded(wks,var,res)
+function map_shaded(wks,__var,res)
 begin
+  var=__var
   var@shaded=True
   var@map=True
   return(plot_it(wks,var,res))

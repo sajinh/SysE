@@ -45,7 +45,9 @@ begin
 
   HAR::ann_harm(nhar,sst2,nmd,sst3,low,ntims,nxdim,ilen)
   sst1(indx)=sst2
-  ssta=onedtond(sst1,(/ntims,nlat,nlon/))
+  sstr=onedtond(sst1,(/ntims,nlat,nlon/))
+  sstav=dim_avg_n(ssta,0)
+  sstr = sstr + conform_dims((/ntims,nlat,nlon/),sstav,(/1,2/))
 
-  return (ssta)
+  return (sstr)
 end
