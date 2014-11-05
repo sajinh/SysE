@@ -119,9 +119,11 @@ begin
   do i=0,ndims-1
     newvar!i=new_dimnames(i)
   end do
-  newvar&level=lev ; nhs sep 5 - was not adding level info
-  newvar&level@long_name="level" ; nhs sep 5
-  newvar&level@units="depends"    ; nhs sep 5
+  if isdim(newvar,"level")
+    newvar&level=lev ; nhs sep 5 - was not adding level info
+    newvar&level@long_name="level" ; nhs sep 5
+    newvar&level@units="depends"    ; nhs sep 5
+  end if
 return(newvar)
 end
 
@@ -684,6 +686,10 @@ if isatt(opt,"DataType")
   if opt@DataType.eq."lanom"
     domain@DataType="LAnom"
   end if
+
+  if opt@DataType.eq."intanom"
+    domain@DataType="Intanom"
+  end if
 end if
 
   if (opt.and.isatt(opt,"Lat")) then
@@ -802,23 +808,31 @@ nave=0
 dstring=""
 
 if isatt(sopt,"TimAve")
-  nave=nave+1
-  dstring=dstring+"tim"
+  if sopt@TimAve
+    nave=nave+1
+    dstring=dstring+"tim"
+  end if
 end if
 
 if isatt(sopt,"LevAve")
-  nave=nave+1
-  dstring=dstring+"lev"
+  if sopt@LevAve
+    nave=nave+1
+    dstring=dstring+"lev"
+  end if
 end if
 
 if isatt(sopt,"LatAve")
-  nave=nave+1
-  dstring=dstring+"lat"
+  if sopt@LatAve
+    nave=nave+1
+    dstring=dstring+"lat"
+  end if
 end if
 
 if isatt(sopt,"LonAve")
-  nave=nave+1
-  dstring=dstring+"lon"
+  if sopt@LonAve
+    nave=nave+1
+    dstring=dstring+"lon"
+  end if
 end if
 
 
