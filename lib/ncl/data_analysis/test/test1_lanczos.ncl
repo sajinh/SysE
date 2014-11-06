@@ -9,7 +9,7 @@ fopt@xwt=2
 
 dt = 1.0/12.0 ; no of years per time step
 dec1_fil = low_filter(9,dt,fopt)
-dec2_fil = band_filter(5,20,dt,fopt)
+dec2_fil = band_filter(5,15,dt,fopt)
 int_fil = band_filter(1,10,dt,fopt)
 
 PTYP="x11"

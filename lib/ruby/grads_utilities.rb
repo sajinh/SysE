@@ -137,6 +137,8 @@ def create_tcoordinate
   t1    = 0.5
   t2    = t1 + (nt-1)*tinc
   @ntim = nt
+  time="fspan(#{t1},#{t2},#{@ntim})"
+  time="#{t1}" if @ntim==1
 tdesc=<<EOF
 
 ; T co-ordinate

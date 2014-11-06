@@ -11,6 +11,7 @@ class Lev
   end
 
   def linear 
+    return "lev=#{@z1}" if @nlev == 1
     "lev=fspan(#{@z1},#{@z2},#{@nlev})"
   end
 
@@ -35,6 +36,7 @@ class Lat
   end
 
   def linear 
+    return "lat=#{@y1}" if @nlat == 1
     "lat=fspan(#{@y1},#{@y2},#{@nlat})"
   end
 
@@ -58,6 +60,7 @@ class Lon
   end
 
   def linear 
+    return "lat=#{@x1}" if @nlon == 1
     "lon=fspan(#{@x1},#{@x2},#{@nlon})"
   end
 
