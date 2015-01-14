@@ -676,3 +676,103 @@ begin
   print("Write Climatology to DataBase")
   write_TLLL(fout,vname,clim2)
 end
+function make_cms_trend(vname,root,src,yr_range,lev)
+local var,opt
+begin
+  pp("Retrieving requested data for trend construction")
+  opt=True
+  opt@vname=vname
+  opt@DataRoot=root
+  opt@DataSource=src
+  opt@Time=(/"01Jan"+yr_range(0),"31Dec"+yr_range(1)/)
+  opt@DataFreq="Monthly"
+  opt@DataType="Anomaly"
+  if lev
+    opt@Lev=lev
+    if dimsizes(lev) .gt.1
+      abort("Only one level can be provided at a time")
+    end if
+  end if
+  ;opt@Lat=(/-60,0/)
+  ;opt@Lon=(/190,240/)
+  ;opt@LatAve=True
+  ;opt@LonAve=True
+  var=slice_data(opt)
+  ;DebugGraph(var)
+  time=var&time
+  ntim=dimsizes(time)
+  nyr=ntim/12
+  years=ispan(1,nyr,1)*1.0d0
+  nave = 3
+  nlat = dimsizes(var&lat)
+  nlon = dimsizes(var&lon)
+  nstn = nlat*nlon
+  vann = new((/nstn,13,nyr/),typeof(var))
+  ;1 a 13 element array is used, the
+  ; first 12 stores trends for each month/3-mon season
+  ; the 13th element stores an annual trend
+  vopt=False
+  v2d = reduce_to_2D(var(lat|:,lon|:,time|:),vopt)
+  v2d = runave(v2d,nave,1)
+  is = 0
+  do iyr=0,nyr-1
+    ie = is+11
+    vann(:,12,iyr) = dim_avg(v2d(:,is:ie))
+    do imo = 0,11
+      vann(:,imo,iyr) = v2d(:,(is+imo))
+    end do
+    is = is+12
+  end do
+
+  trend2d=regCoef(years,vann)
+  trend2d=trend2d*10 ; time is in units of days - this changes
+                  ; trend from vunits/day to vunits/year
+  trend=onedtond(trend2d,(/nlat,nlon,13/))
+  add_dimensions(trend,(/"lat","lon","season"/))
+  trend&lat=var&lat
+  trend&lon=var&lon
+  trend&season=ispan(1,13,1)
+  trend@long_name="trend based on linear regression"
+  trend@units=var@units+"/decade"
+  trend@yr_range=yr_range
+  
+  delete(var)
+  delete(opt)
+  delete(time)
+  delete(vann)
+  delete(v2d)
+  return(trend(season|:,lat|:,lon|:))
+end
+function write_cms_trend(vname,root,src,var)
+begin
+  outdir    = create_outdir((/root,src,"Monthly","Climatology"/))
+  remove_xtra_slashes_of(outdir)
+  print(outdir)
+  dims=dimsizes(var)
+  ntim=dims(0)
+  nlat=dims(1)
+  nlon=dims(2)
+  nlev=1
+  var2=new( (/ntim,nlev,nlat,nlon/), typeof(var) )
+  var2(:,0,:,:)=var
+  season=var2&season
+  delete(var2&$var2!0$)
+  printVarSummary(var2)
+  var2!0="time"
+  var2&time=season
+  var2&time@units="months since 1900-01-01"
+  var2&time@desc="twelve 3-month season plus annual trend"
+  var2!1="level"
+  var2&level=1
+  var2&level@description="dummy co-ordinate"
+  var2&level@long_name="depth"
+  var2&level@units="m"
+
+  make_the_dir(outdir)
+  tvnam = "t_"+vname
+  outfil    = create_file_if_not_exists(outdir,tvnam)
+  fout      = addfile(outfil,"c")
+  print("Write Trend to DataBase")
+  write_TLLL(fout,tvnam,var2)
+  return(True)
+end

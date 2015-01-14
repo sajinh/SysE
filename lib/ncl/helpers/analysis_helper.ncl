@@ -1,3 +1,75 @@
+procedure pp(aString)
+begin
+  print(""+aString)
+end
+procedure TerminateProgram()
+begin
+  print("Program Terminated")
+  exit
+end
+procedure terminate_program(aString)
+begin
+  print("-----------%< -------")
+  pp(aString)
+  print("Program Terminated")
+  print("-----------%< -------")
+  exit
+end
+procedure abort(aString)
+begin
+  terminate_program(aString)
+end
+function start_end_date(time)
+local tmp
+; returns start and end dates
+;      upto seconds in a list
+begin
+  ntim=dimsizes(time)
+  tmp=cd_calendar(time,-5)
+  yrs = tmp((/0,ntim-1/),0)
+  mon = tmp((/0,ntim-1/),1)
+  dys = tmp((/0,ntim-1/),2)
+  hrs = tmp((/0,ntim-1/),3)
+  mns = tmp((/0,ntim-1/),4)
+  sec = tmp((/0,ntim-1/),5)
+  return([/yrs,mon,dys,hrs,mns,sec/])
+end
+
+function remove_trend(var,trend)
+; returns trend values for each year/season
+;         that should be removed from var
+;         for detrending
+; return variable has dimsizes(var&time)
+;                 and is of typeof(var)
+begin
+  period=trend@yr_range
+  tys = period(0)
+  tye = period(1)
+  time=var&time
+  ntim=dimsizes(time)
+  set=start_end_date(time)
+  vyr=set[0]
+  vys=vyr(0)
+  vye=vyr(1)
+  if (vys .lt. tys) .or. (vye .gt. tye)
+    abort("time of variable out of range")
+  end if
+  vtrend = new( dimsizes(time), typeof(var) )
+  tmp=cd_calendar(time,-5)
+  yrs = tmp(:,0)
+  if (dimsizes(yrs) .ne. ntim)
+    abort("remove_trend :: fatal error")
+  end if
+  yr=yrs(0)
+  do it = 0,ntim-1
+    if (yrs(it) .ne. yr)
+      yr=yr+1
+    end if  
+  
+  end do
+  return(0)  
+end
+
 procedure info(var)
 begin
   printVarSummary(var)
@@ -104,27 +176,6 @@ procedure make_the_dir(dirName)
 local dirName
 begin
   system("mkdir -p "+dirName)
-end
-procedure pp(aString)
-begin
-  print(""+aString)
-end
-procedure TerminateProgram()
-begin
-  print("Program Terminated")
-  exit
-end
-procedure terminate_program(aString)
-begin
-  print("-----------%< -------")
-  pp(aString)
-  print("Program Terminated")
-  print("-----------%< -------")
-  exit
-end
-procedure abort(aString)
-begin
-  terminate_program(aString)
 end
 procedure add_dimensions(var,att_array)
 begin
