@@ -6,6 +6,35 @@
 load "$SysE/lib/ncl/writers/writem.ncl"
 load "$SysE/lib/ncl/data_analysis_helpers.ncl"
 
+function pooled_variance(v1,v2,av1,av2,nn,nyr)
+local n, n1, n2, ix, i1, d12, naive, form1
+begin
+  n  = dimsizes(nn)
+  n1 = nyr*sum(nn(:n-2))
+  n2 = nyr*nn(n-1)
+  ix = ind(.not.(ismissing(ndtooned(av1))))
+  i1 = ix(0)
+  nv1 = ndtooned(v1)
+  nv2 = ndtooned(v2)
+  nav1 = ndtooned(av1)
+  nav2 = ndtooned(av2)
+  print("Finding pooled variance for two samples")
+  print("Sample sizes are : "+n1+" and "+n2)
+  print("Sample variances are : "+nv1(i1)+" and "+nv2(i1))
+  print("Sample means are : "+nav1(i1)+" and "+nav2(i1))
+  d12 = (av2-av1)*(av2-av1)
+  naive = ((n1-1)*v1 + (n2-1)*v2)/(n1+n2-2)
+  ; need to check if form1 is suitable for this purpose
+  form1 = (n1*n1*v1)+(n2*n2*v2)-(n2*v1)-(n2*v2)-(n1*v1)-(n1*v2)
+  form1 = form1 + (n1*n2*v1)+(n1*n2*v2)+(n1*n2*d12)
+  form1 = form1/( (n1+n2-1)*(n1+n2))
+  nform1 = ndtooned(form1)
+  nnaive = ndtooned(naive)
+  print("Naive pooled variance : "+nnaive(i1))
+  print("Better pooled variance : "+nform1(i1))
+  return(form1)
+end
+
 ; + - + 
 ;procedure remove_unnecessary_attribute_of(var,att)
 ;begin
@@ -499,6 +528,9 @@ begin
   year1=new(nslices, integer)
   nyr_chunk = nyr/nslices
   rem_chunk = nyr%nslices
+  if nyr_chunk .lt. 2
+    terminate_program("there should be at least 2 years in a chunk")
+  end if
   do i = 0,nslices-1
     year0(i) = stringtointeger(yr1)+i*nyr_chunk
   end do
@@ -603,7 +635,7 @@ begin
       delete(yyyyddd)
       ntim=366
       if irpt.eq.0
-        clim_time=make_daily_time(1904,1,15,1904,12,15,tunits,ntim)
+        clim_time=make_daily_time(1904,1,1,1904,12,31,tunits,ntim)
       end if
        
     end if
@@ -611,17 +643,24 @@ begin
       slc_clim = clim
       slc_std = std
       slc_clim= (/ clim*chunk_wgt(irpt) /)
-      slc_std= (/ std*chunk_wgt(irpt) /)
+      ;slc_std= (/ std*chunk_wgt(irpt) /)
+      ; we need sample variance for pooled variance calculation
+      ; hence it is not weighted
+      ; in case of climatology, write unweighted mean to a new variable old_clim
+      slc_std= (/ std*std /)
+      old_clim = clim
     else
+      ;slc_std= (/ slc_std+(std*chunk_wgt(irpt)) /)
+      slc_std= (/pooled_variance(slc_std,std*std,old_clim,clim,chunk_wgt(:irpt),__nyr)/)
       slc_clim= (/ slc_clim+(clim*chunk_wgt(irpt)) /)
-      slc_std= (/ slc_std+(std*chunk_wgt(irpt)) /)
+      old_clim = clim
     end if
     delete(clim)
     delete(std)
     delete(var)
   end do
   clim = slc_clim
-  std = slc_std
+  std = (/ sqrt(slc_std)/)
   delete(slc_clim)
   delete(slc_std)
   CPeriod=opt0@ClimPeriod
@@ -641,7 +680,7 @@ begin
   nlev=2
   clim2=new( (/ntim,nlev,nlat,nlon/), typeof(clim) )
   clim2(:,0,:,:)=clim
-  clim2(:,1,:,:)=std ; std dev code for TLL
+  clim2(:,1,:,:)= (/ std /) ; std dev code for TLL
   delete(clim2&$clim2!0$)
   printVarSummary(clim2)
   clim2!0="time"

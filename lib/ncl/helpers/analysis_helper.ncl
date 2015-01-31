@@ -35,6 +35,85 @@ begin
   return([/yrs,mon,dys,hrs,mns,sec/])
 end
 
+function daily_to_monthly(time)
+;  input time axis
+;  output arrays containing start and end points of each month
+;  in the record
+local ntim, tunit
+begin
+  ntim=dimsizes(time)
+  tunit=time@units
+  beg_end=start_end_date(time)
+  yrs=beg_end[0]
+  mon=beg_end[1]
+  dys=beg_end[2]
+  hrs=beg_end[3]
+  mns=beg_end[4]
+  scs=beg_end[5]
+  hr=hrs(0)
+  mn=mns(0)
+  sc=scs(0)
+  yr1=yrs(0)
+  yr2=yrs(1)
+  mo1=mon(0)
+  mo2=mon(1)
+  dy1=dys(0)
+  dy2=dys(1)
+  ; estimate total number of months in record
+  nmo = (12-mo1+1)+(yr2-yr1-1)*12+mo2
+  nyr = yr2-yr1+1
+  ; arrays below hold start and end times corresponding to each
+  ; month in record
+  sdy = new(nmo,typeof(time))
+  edy = sdy
+  ; treat first and last month specially
+  sdy(0) = time(0)
+  edy(0) = cd_inv_calendar(yr1,mo1,days_in_month(yr1,mo1),hr,mn,sc,tunit,0)
+  sdy(nmo-1) = cd_inv_calendar(yr2,mo2,1,hr,mn,sc,tunit,0)
+  edy(nmo-1) = time(ntim-1)
+  ; treat first and last years separate from the rest
+  kmon=0
+  if (nyr .eq. 1)
+    do imon=mo1+1,mo2-1
+      kmon=kmon+1
+      sdy(kmon) = cd_inv_calendar(yr1,imon,1,hr,mn,sc,tunit,0) 
+      edy(kmon) = cd_inv_calendar(yr1,imon,days_in_month(yr1,imon),hr,mn,sc,tunit,0)
+      pp(kmon)
+    end do
+  end if
+  if (nyr .gt. 1)
+    do imon=mo1+1,12
+      kmon=kmon+1
+      sdy(kmon) = cd_inv_calendar(yr1,imon,1,hr,mn,sc,tunit,0) 
+      edy(kmon) = cd_inv_calendar(yr1,imon,days_in_month(yr1,imon),hr,mn,sc,tunit,0)
+      pp(kmon)
+    end do
+    do iyr=yr1+1,yr2-1
+      do imon=1,12
+        kmon=kmon+1
+        sdy(kmon) = cd_inv_calendar(iyr,imon,1,hr,mn,sc,tunit,0) 
+        edy(kmon) = cd_inv_calendar(iyr,imon,days_in_month(iyr,imon),hr,mn,sc,tunit,0)
+      pp(kmon)
+      end do
+    end do
+    do imon=1,mo2-1
+      kmon=kmon+1
+      sdy(kmon) = cd_inv_calendar(yr2,imon,1,hr,mn,sc,tunit,0) 
+      edy(kmon) = cd_inv_calendar(yr2,imon,days_in_month(yr2,imon),hr,mn,sc,tunit,0)
+    pp(kmon)
+    end do
+  end if
+  sten=[/sdy,edy/]
+  sten@tunits=tunit
+  sten@yr1=yr1
+  sten@yr2=yr2
+  sten@mo1=mo1
+  sten@mo2=mo2
+  sten@dy1=dy1
+  sten@dy2=dy2
+  return(sten)
+end
+
 function remove_trend(var,trend)
 ; returns trend values for each year/season
 ;         that should be removed from var

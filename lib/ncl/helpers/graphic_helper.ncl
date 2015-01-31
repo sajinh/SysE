@@ -97,7 +97,7 @@ begin
   ;res@cnLineColor = "black"
   res@cnInfoLabelOn         = False
   ;res@gsnContourNegLineDashPattern = 1 ;
-  res@gsnSpreadColors = True
+  ;res@gsnSpreadColors = True
 end
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -329,6 +329,9 @@ begin
   end if
   res@lbLabelBarOn=True
   res@lbLabelAutoStride=True
+  if isatt(var,"nolabel")
+    res@lbLabelBarOn=False
+  end if
   if isatt(var,"map")
     lat = var&lat
     lon = var&lon
