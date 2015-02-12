@@ -349,8 +349,17 @@ begin
 
   ndim=dimsizes(fill_req)
   do idim = 0,ndim-1
-    print("Filling data gaps in "+ fill_req(idim))
-    fillup_along_time(var)
+    dim=fill_req(idim)
+    print("Filling data gaps in "+ dim)
+    if (dim .eq. "time")
+      fillup_along_time(var)
+    end if
+    if (dim .eq. "lat")
+      fillup_along_lat(var)
+    end if
+    if (dim .eq. "lon")
+      fillup_along_lon(var)
+    end if
   end do
 return(var)
 end

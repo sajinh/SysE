@@ -18,6 +18,26 @@ begin
   print("Time indices are - "+t1+" and "+t2)
 end
 
+function smooth_with_harmonics(__var,nhar)
+begin
+  var2d=__var
+  dims=dimsizes(var2d)
+  nxy=dims(1)
+  sstav=dim_avg_n(var2d,0)
+  indx=ind(.not.ismissing(var2d)) ; collect indices of valid data
+  var=var2d(indx)
+  ntims = dimsizes(var2d&time)
+  nmd=dimsizes(indx)
+  var2=var
+  var3=var
+  nxdim=nmd/ntims
+  ilen=ntims
+  HAR::ann_harm(nhar,var,nmd,var2,var3,ntims,nxdim,ilen)
+  var2d(indx)=var
+  var2d = var2d + conform_dims((/ntims,nxy/),sstav,0)
+  return(var2d)
+end
+
 function constructed_anncycle(ssta, nhar)
 ; provide the input data with co-ordinates named and ordered time, lat and lon
 ; this function returns the annual cycle of the data

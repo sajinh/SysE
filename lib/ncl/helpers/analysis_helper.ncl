@@ -527,6 +527,8 @@ start_and_end(yr1-1,month1,tunits,start_time,end_time)
      window=cos(3.14*it1/nlen)
      window=fabs(window)
      tmask(0:t1)=(/window(0-t1old:nlen-1)/)
+     delete(it1)
+     delete(window)
   else
 ; Otherwise start_time is time(0)
      t1=0
@@ -1244,6 +1246,7 @@ begin
   else
     opt=-1
   end if
+  pp("fillMissingValues opt is : "+opt)
 
   ; create an array of dimensions
   ; move required dimension to the end

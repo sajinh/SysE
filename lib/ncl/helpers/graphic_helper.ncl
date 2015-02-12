@@ -384,6 +384,11 @@ begin
   var@shaded=True
   DebugPlot(var)
 end
+function plot_contour(wks,__var,res)
+begin
+  var=__var
+  return(plot_it(wks,var,res))
+end
 function plot_shaded(wks,__var,res)
 begin
   var=__var
