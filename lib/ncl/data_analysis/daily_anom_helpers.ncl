@@ -24,8 +24,9 @@ begin
   dims=dimsizes(var2d)
   nxy=dims(1)
   sstav=dim_avg_n(var2d,0)
-  indx=ind(.not.ismissing(var2d)) ; collect indices of valid data
-  var=var2d(indx)
+  var1d=ndtooned(var2d)
+  indx=ind(.not.ismissing(var1d)) ; collect indices of valid data
+  var=var1d(indx)
   ntims = dimsizes(var2d&time)
   nmd=dimsizes(indx)
   var2=var
@@ -33,7 +34,8 @@ begin
   nxdim=nmd/ntims
   ilen=ntims
   HAR::ann_harm(nhar,var,nmd,var2,var3,ntims,nxdim,ilen)
-  var2d(indx)=var
+  var1d(indx)=var
+  var2d = onedtond(var1d, (/ntims,nxy/))
   var2d = var2d + conform_dims((/ntims,nxy/),sstav,0)
   return(var2d)
 end
