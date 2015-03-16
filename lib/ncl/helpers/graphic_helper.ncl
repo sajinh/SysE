@@ -1,4 +1,12 @@
 
+procedure cn_line_label(res,flag)
+begin
+  res@cnLineLabelOn         = False
+  if str_lower(flag) .eq. "on"
+    res@cnLineLabelOn         = True
+  end if
+end
+
 procedure cn_info_label(res,flag)
 begin
   res@cnInfoLabelOn         = False
