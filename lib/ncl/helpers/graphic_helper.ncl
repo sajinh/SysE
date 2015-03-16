@@ -419,7 +419,6 @@ end
 function plot_contour(wks,__var,res)
 begin
   var=__var
-print(res)
   return(plot_it(wks,var,res))
 end
 function plot_shaded(wks,__var,res)
