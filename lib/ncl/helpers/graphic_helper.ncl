@@ -1,4 +1,20 @@
 
+procedure cn_info_label(res,flag)
+begin
+  res@cnInfoLabelOn         = False
+  if str_lower(flag) .eq. "on"
+    res@cnInfoLabelOn         = True
+  end if
+end
+procedure cn_labels(res,flag)
+begin
+  res@cnInfoLabelOn         = False
+  if str_lower(flag) .eq. "on"
+    res@cnLinesOn             = True
+  else
+    res@cnLinesOn             = False
+  end if
+end
 procedure mymap(res:logical,opt:logical)
 begin
 	if (opt.and.isatt(opt,"latlon")) then
@@ -9,6 +25,13 @@ begin
 	res@mpMaxLonF             = opt@latlon(3)
         res@mpCenterLonF = (res@mpMinLonF+res@mpMaxLonF)/2. 
 	end if
+end
+procedure zoom_map(res,latlon)
+local __mopt
+begin
+  __mopt=True
+  __mopt@latlon=latlon
+  mymap(res,__mopt)
 end
 
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -45,25 +68,22 @@ end
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 procedure mycontour(res:logical, opt:logical)
-
-
 begin
-res                 = True                ; make plot mods
+  res                 = True                ; make plot mods
         if (opt.and.isatt(opt,"clevs")) then
         res@cnLevelSelectionMode = "ExplicitLevels"
         res@cnLevels             = opt@clevs
         end if
 
 
-res@lbLabelBarOn    = False
-res@cnSmoothingOn   = True
-res@cnFillOn              = False
-res@cnLinesOn             = True
-res@cnLineLabelsOn        = False    ; turn off line labels
-res@cnInfoLabelOn         = False
-res@cnLineColor = "black"
-res@gsnContourNegLineDashPattern = 1 ;
-
+  res@lbLabelBarOn    = False
+  res@cnSmoothingOn   = True
+  res@cnFillOn              = False
+  res@cnLinesOn             = True
+  ;res@cnLineLabelsOn        = False    ; turn off line labels
+  ;res@cnInfoLabelOn         = False
+  res@cnLineColor = "black"
+  res@gsnContourNegLineDashPattern = 1 ;
 end
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -77,7 +97,7 @@ end
 
 
 begin
-  res                 = True                ; make plot mods
+  ;res                 = True                ; make plot mods
   if (opt.and.isatt(opt,"clevs")) then
     res@cnLevelSelectionMode = "ExplicitLevels"
     res@cnLevels             = opt@clevs
@@ -93,9 +113,9 @@ begin
   res@cnSmoothingOn   = True
   res@cnFillOn              = True
   res@cnLinesOn             = False
-  res@cnLineLabelsOn        = False    ; turn off line labels
+  ;res@cnLineLabelsOn        = False    ; turn off line labels
   ;res@cnLineColor = "black"
-  res@cnInfoLabelOn         = False
+  ;res@cnInfoLabelOn         = False
   ;res@gsnContourNegLineDashPattern = 1 ;
   ;res@gsnSpreadColors = True
 end
@@ -213,6 +233,10 @@ begin
 res@gsnStringFontHeightF = fhgt
 res@gsnLeftString=left
 res@gsnRightString=right
+end
+procedure set_string(res,fhgt,left,right)
+begin
+  setstring(res,fhgt,left,right)
 end
 
 function openwks(format:string,filename:string,colormap:string)
@@ -387,6 +411,7 @@ end
 function plot_contour(wks,__var,res)
 begin
   var=__var
+print(res)
   return(plot_it(wks,var,res))
 end
 function plot_shaded(wks,__var,res)
