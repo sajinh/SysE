@@ -1,7 +1,7 @@
 
 procedure cn_line_label(res,flag)
 begin
-  res@cnLineLabelOn         = False
+  res@cnLineLabelsOn         = False
   if str_lower(flag) .eq. "on"
     res@cnLineLabelsOn         = True
   end if
