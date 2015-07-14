@@ -843,7 +843,9 @@ begin
 
 ;        (CALCULATE TIME AS DAYS SINCE 1900-01-01)
          
-         time@units="days since 1900-01-01"
+   if .not.isatt(time,"units")
+     time@units="days since 1900-01-01"
+   end if
          time@calendar="standard"
          if isatt(yr1,"day")
           day=yr1@day

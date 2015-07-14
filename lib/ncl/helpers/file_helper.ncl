@@ -1,3 +1,29 @@
+function ncl_version()
+begin
+  ver = stringtochar(get_ncl_version)
+  ver@maj = tointeger(chartostring(ver(0))) 
+  ver@mnr = tointeger(chartostring(ver(2))) 
+  ver@sub = tointeger(chartostring(ver(4))) 
+  return(ver)
+end
+function ncl_file_exists(arg)
+begin
+  nclv= ncl_version
+  if (nclv@maj .gt. 6)
+    return(fileexists(arg))
+  end if
+  if nclv@maj .eq. 6
+    if nclv@mnr .gt. 2
+      return(fileexists(arg))
+    end if
+    if nclv@mnr .eq. 2
+      if nclv@sub .ge. 1
+        return(fileexists(arg))
+      end if
+    end if
+  end if
+  return(isfilepresent(arg))
+end
 function fopen_read(fname)
 begin
   return(addfile(fname,"r"))

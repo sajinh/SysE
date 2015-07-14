@@ -303,7 +303,7 @@ end if
 
 DataDir=DataDir+"/"+domain@DataFreq+"/"+domain@DataType+"/"
 
-if vname@Access.eq."Local" .and. .not.isfilepresent(DataDir)
+if vname@Access.eq."Local" .and. .not. ncl_file_exists(DataDir)
   print("The directory "+DataDir+" is not available")
   TerminateProgram
 end if
