@@ -1,0 +1,4 @@
+sst=1
+chai=-90
+chai=90
+fin=1
