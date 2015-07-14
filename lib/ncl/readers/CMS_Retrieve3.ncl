@@ -503,7 +503,7 @@ else
     years=ispan(yr1,yr2,1)
     var=cut_data(DataDir,vname,years,data_tim,data_lat,data_lon)
   else
-    var=fin1->$vname$(:,nstat,{lat1:lat2},{lon1:lon2})
+    var=fin1->$vname$(domain@months,nstat,{lat1:lat2},{lon1:lon2})
   end if
 end if
 
@@ -681,6 +681,15 @@ if isatt(opt,"DataType")
     if ostat.eq."stddev"
       domain@nstat=1
     end if
+    if isatt(opt,"months")
+      if (typeof(opt@months) .eq. "string")
+        domain@months=(month_to_int(opt@months))-1
+      else
+        domain@months=(opt@months)-1
+      end if
+    else
+      domain@months=ispan(0,11,1)
+    end if
   end if
 
   if opt@DataType.eq."lanom"
@@ -780,6 +789,9 @@ begin
       else
         opt@Statistic="Mean"
       end if
+     if isatt(sopt,"months")
+       opt@months=sopt@months
+     end if
     end if
   else
     opt@DataType="Anomalies"
