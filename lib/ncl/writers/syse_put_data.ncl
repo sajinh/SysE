@@ -35,6 +35,10 @@ end
 
 function write_out_climatology(vclm,vnm,src,frq,sopt)
 begin
+  if isatt(vclm,"cut_ntim")
+    pp("found a cut_ntim")
+    delete(vclm@cut_ntim)
+  end if
   if isatt(sopt,"FillGaps")
     vclm=SysE_FillGaps(vclm,sopt@FillGaps)
   end if
@@ -206,6 +210,10 @@ begin
     if isatt(sopt,"Lev")
       ovnm=ovnm+"_"+sopt@Lev(0)
     end if
+    if isatt(var,"cut_ntim")
+      pp("found a cut_ntim")
+      delete(var@cut_ntim)
+    end if
     outfil = name_of_outfil(outdir,ovnm)
     if (isatt(sopt,"overwrite") .and. sopt@overwrite)
       rm_file_if_present(outfil)
@@ -262,7 +270,6 @@ begin
     end if
     tims = (/da1+mo1+yrs(iyr),da2+mo2+yrs(iyr)/)
     var = syse_get_dly_mean(src,vnm,lat,lon,tims,sopt)
-    info(var)
     nvtim = dimsizes(var&time)
     if (ntim .ne. nvtim)
       var = (/ var - vclm(:ntim-2,:,:) /)
@@ -287,6 +294,10 @@ begin
     outfil = name_of_outfil(outdir,ovnm)
     if (isatt(sopt,"overwrite") .and. sopt@overwrite)
       rm_file_if_present(outfil)
+    end if
+    if isatt(var,"cut_ntim")
+      pp("found a cut_ntim")
+      delete(var@cut_ntim)
     end if
     outfil    = create_file_if_not_exists(outdir,ovnm)
     fout      = fopen_write(outfil)

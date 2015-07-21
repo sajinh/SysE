@@ -19,22 +19,23 @@ begin
   nmon = m2-m1+1
   tims = new(nmon,double)
   if dFreq .eq. "Monthly"
-    d1 = cd_inv_calendar(yr,m1,15,0,0,0,SysE_DB_tunits,0)
-    d2 = cd_inv_calendar(yr,m2,15,0,0,0,SysE_DB_tunits,0)
+    d1 = ut_inv_calendar(yr,m1,15,0,0,0,SysE_DB_tunits,0)
+    d2 = ut_inv_calendar(yr,m2,15,0,0,0,SysE_DB_tunits,0)
     ret = (/d1,d2/)
     ntim = (m2-m1)+1
     ret@ntim = ntim
     tims(0) = d1
     tims(nmon-1) = d2
     do im=1,nmon-2
-      tims(im) = cd_inv_calendar(yr,(m1+im),15,0,0,0,SysE_DB_tunits,0) 
+      tims(im) = ut_inv_calendar(yr,(m1+im),15,0,0,0,SysE_DB_tunits,0) 
     end do
     ret@tims = tims
     return(ret)
   end if
   if dFreq .eq. "Daily"
-    d1 = cd_inv_calendar(yr,m1,1,0,0,0,SysE_DB_tunits,0)
-    d2 = cd_inv_calendar(yr,m2,days_in_month(yr,m2),0,0,0,SysE_DB_tunits,0)
+    d1 = ut_inv_calendar(yr,m1,1,0,0,0,SysE_DB_tunits,0)
+    d2 = ut_inv_calendar(yr,m2,days_in_month(yr,m2),0,0,0,SysE_DB_tunits,0)
+pp(d2+" "+yr)
     ret = (/d1,d2/)
     ntim = toint((d2-d1)+1)
     ret@ntim = ntim
@@ -57,8 +58,8 @@ begin
     m2 = integer_value_of_month(str_get_cols(t2,2,4))
     d1 = toint(str_get_cols(t1,0,1))
     d2 = toint(str_get_cols(t2,0,1))
-    dt1 = cd_inv_calendar(yr,m1,d1,0,0,0,SysE_DB_tunits,0)
-    dt2 = cd_inv_calendar(yr,m2,d2,0,0,0,SysE_DB_tunits,0)
+    dt1 = ut_inv_calendar(yr,m1,d1,0,0,0,SysE_DB_tunits,0)
+    dt2 = ut_inv_calendar(yr,m2,d2,0,0,0,SysE_DB_tunits,0)
     ; Thanks to cd_inv_calendar even "2010-01-40" makes sense
     ret = (/dt1,dt2/)
     ntim = toint(dt2-dt1+1)
@@ -163,6 +164,8 @@ begin
   ndims=dimsizes(newdims)
   newvar=new(newdims,"float")
   newvar=var2
+info(var2)
+info(newvar)
   do i=0,ndims-1
     newvar!i=new_dimnames(i)
   end do
@@ -471,8 +474,8 @@ begin
   end if
 
   if typeof(file_yrs).eq."integer" ; true except for climatology
-    start_time=cd_inv_calendar(yr1,mo1,dy1,0,0,0,tunits,0)
-    end_time=cd_inv_calendar(yr2,mo2,dy2,0,0,0,tunits,0)
+    start_time=ut_inv_calendar(yr1,mo1,dy1,0,0,0,tunits,0)
+    end_time=ut_inv_calendar(yr2,mo2,dy2,0,0,0,tunits,0)
 
     data_tim = True
     data_tim@mo1=mo1
