@@ -119,11 +119,6 @@ begin
   do i=0,ndims-1
     newvar!i=new_dimnames(i)
   end do
-  if isdim(newvar,"level")
-    newvar&level=lev ; nhs sep 5 - was not adding level info
-    newvar&level@long_name="level" ; nhs sep 5
-    newvar&level@units="depends"    ; nhs sep 5
-  end if
 return(newvar)
 end
 
@@ -303,7 +298,7 @@ end if
 
 DataDir=DataDir+"/"+domain@DataFreq+"/"+domain@DataType+"/"
 
-if vname@Access.eq."Local" .and. .not. ncl_file_exists(DataDir)
+if vname@Access.eq."Local" .and. .not.isfilepresent(DataDir)
   print("The directory "+DataDir+" is not available")
   TerminateProgram
 end if
@@ -370,13 +365,13 @@ if typeof(file_yrs).eq."integer"
   end if
 
   yr1=stringtoint(chartostring(tim1(nsiz-4:nsiz-1)))
-  smo1=str_upper(chartostring(tim1(nsiz-7:nsiz-5)))
+  smo1=changeCase(chartostring(tim1(nsiz-7:nsiz-5)),"up")
   dy1=stringtoint(chartostring(tim1(:nsiz-8)))
 
 
   nsiz=sizeof(tim2)-1
   yr2=stringtoint(chartostring(tim2(nsiz-4:nsiz-1)))
-  smo2=str_upper(chartostring(tim2(nsiz-7:nsiz-5)))
+  smo2=changeCase(chartostring(tim2(nsiz-7:nsiz-5)),"up")
   dy2=stringtoint(chartostring(tim2(:nsiz-8)))
 
   mo1=integer_value_of_month(smo1)
@@ -385,29 +380,29 @@ if typeof(file_yrs).eq."integer"
   tunits=TimeUnits ; retrieved from top-level Defaults file
 
   if yr1.lt. min(file_yrs) .or. yr2.gt.max(file_yrs)
-    print("Prescribed Year not to be found in Data Base")
-    print("This could be either "+yr1+" or "+yr2)
-    exit
+  print("Prescribed Year not to be found in Data Base")
+  print("This could be either "+yr1+" or "+yr2)
+  exit
   else
-    nyrs=yr2-yr1+1
-    my_yrs=yr1+nyrs-1
+  nyrs=yr2-yr1+1
+  my_yrs=yr1+nyrs-1
   end if
 
 ; Check for consistent specification
 
   if nlat.eq.0 .or. nlon.eq.0 .or. nyrs.eq.0
-    print("At least one latitude, longitude and time point to be specified")
-    print("Current specs are given below: ")
-    printVarSummary(domain)
-    exit
+  print("At least one latitude, longitude and time point to be specified")
+  print("Current specs are given below: ")
+  printVarSummary(domain)
+  exit
   end if
 end if
 
   if nlat.eq.0 .or. nlon.eq.0 
-    print("At least one latitude and longitude point to be specified")
-    print("Current specs are given below: ")
-    printVarSummary(domain)
-    exit
+  print("At least one latitude and longitude point to be specified")
+  print("Current specs are given below: ")
+  printVarSummary(domain)
+  exit
   end if
 
 _datFreq=domain@DataFreq
@@ -503,7 +498,7 @@ else
     years=ispan(yr1,yr2,1)
     var=cut_data(DataDir,vname,years,data_tim,data_lat,data_lon)
   else
-    var=fin1->$vname$(domain@months,nstat,{lat1:lat2},{lon1:lon2})
+    var=fin1->$vname$(:,nstat,{lat1:lat2},{lon1:lon2})
   end if
 end if
 
@@ -604,18 +599,22 @@ begin
   space_remover(val2)
   end if
 
-  if  isatt(vals,"DEBUG")
-    print(val1+" -- "+val2)
+  if  vals@DEBUG
+  print(val1+" -- "+val2)
   end if
+  
+
 end
 
 procedure debug_checker(opt,vals)
 begin
-  if isatt(opt,"DEBUG")
-    vals@DEBUG=True
-  else
-    vals@DEBUG=False
-  end if
+
+if isatt(opt,"DEBUG")
+vals@DEBUG=True
+else
+vals@DEBUG=False
+end if
+
 end
 
 
@@ -660,7 +659,7 @@ domain@DataType="Anomaly" ; default data type
 domain@DataFreq=opt@DataFreq
 
 if isatt(opt,"DataType")
-  opt@DataType=str_lower(opt@DataType)
+  opt@DataType=changeCase(opt@DataType,"low")
   space_remover(opt@DataType)
 
   if opt@DataType.eq."mean"
@@ -674,30 +673,17 @@ if isatt(opt,"DataType")
   if opt@DataType.eq."climatology"
     domain@DataType="Climatology"
     ostat=opt@Statistic
-    ostat=str_lower(ostat)
+    ostat=changeCase(ostat,"low")
     if ostat.eq."mean"
       domain@nstat=0
     end if
     if ostat.eq."stddev"
       domain@nstat=1
     end if
-    if isatt(opt,"months")
-      if (typeof(opt@months) .eq. "string")
-        domain@months=(month_to_int(opt@months))-1
-      else
-        domain@months=(opt@months)-1
-      end if
-    else
-      domain@months=ispan(0,11,1)
-    end if
   end if
 
   if opt@DataType.eq."lanom"
     domain@DataType="LAnom"
-  end if
-
-  if opt@DataType.eq."intanom"
-    domain@DataType="Intanom"
   end if
 end if
 
@@ -733,8 +719,8 @@ end if
   CMS_subsetter(domain@lev1,domain@lev2,levs)
   end if
 
-  opt@DataSource=str_upper(opt@DataSource)
-  vname=str_lower(opt@Variable)
+  opt@DataSource=changeCase(opt@DataSource,"up")
+  vname=changeCase(opt@Variable,"low")
   vname@Access="Local"
   if isatt(opt,"Lev")
     vname@Lev=opt@Lev
@@ -758,6 +744,7 @@ end
 
 function slice_data(sopt)
 begin
+
   opt=True
   opt@Variable=sopt@vname
   opt@DataSource=sopt@DataSource
@@ -788,9 +775,6 @@ begin
       else
         opt@Statistic="Mean"
       end if
-     if isatt(sopt,"months")
-       opt@months=sopt@months
-     end if
     end if
   else
     opt@DataType="Anomalies"
@@ -810,7 +794,6 @@ begin
     opt@DataBaseDir=sopt@DataRoot
   end if
 
-
 ; Data is retrieved using a complex algorithm
   vdat=CMS_getdata(opt)
 
@@ -819,31 +802,23 @@ nave=0
 dstring=""
 
 if isatt(sopt,"TimAve")
-  if sopt@TimAve
-    nave=nave+1
-    dstring=dstring+"tim"
-  end if
+  nave=nave+1
+  dstring=dstring+"tim"
 end if
 
 if isatt(sopt,"LevAve")
-  if sopt@LevAve
-    nave=nave+1
-    dstring=dstring+"lev"
-  end if
+  nave=nave+1
+  dstring=dstring+"lev"
 end if
 
 if isatt(sopt,"LatAve")
-  if sopt@LatAve
-    nave=nave+1
-    dstring=dstring+"lat"
-  end if
+  nave=nave+1
+  dstring=dstring+"lat"
 end if
 
 if isatt(sopt,"LonAve")
-  if sopt@LonAve
-    nave=nave+1
-    dstring=dstring+"lon"
-  end if
+  nave=nave+1
+  dstring=dstring+"lon"
 end if
 
 
@@ -976,122 +951,6 @@ end if
 return(var)
 end
 
-function get_from_file(fname)
-begin
-  fin=fopen_read(fname)
-  return(fin->var)
-end
-procedure write_to_file(var,fname)
-begin
-  fot=fopen_write(fname)
-  if isatt(fname,"vname")
-   vnm = fname@vname
-   fot->$vnm$ = var
-  else
-    fot->var=var
-  end if
-end
-function write_meta_to_file(options,fname)
-local fopt,opts
-begin
-  fopt=1
-  opts = getvaratts(options)
-  nopt = dimsizes(opts)
-  do i = 0,nopt-1
-    tmp = options@$opts(i)$
-    if typeof(tmp) .eq. "string" .and. (dimsizes(tmp) .ge. 2)
-      fopt@$opts(i)$ = array_join(tmp,",")
-    else
-      fopt@$opts(i)$ = tmp
-    end if
-    delete(tmp)
-  end do
-  fname@vname="fopt"
-  write_to_file(fopt,fname)
-  return(True)
-end
-
-function check_cache_status(fnam,opt)
-begin
-  fin   = fopen_read(fnam)
-  fopt  = fin->fopt
-  atts  = getvaratts(opt)
-  natt  = dimsizes(atts)
-  fatts = getvaratts(fopt)
-  nfatt = dimsizes(fatts)
-  ; First check - number of atts should match
-  if (nfatt .ne. natt)
-    return(False)
-  else  
-    pp("Cache_Check :: Number of attributes match")
-  end if
-  ; Second check - the att names should be the same
-  check2 = new(nfatt,logical)
-  do i = 0,nfatt-1
-    check2(i) = any(atts .eq. fatts(i))
-  end do
-  if (all(check2))
-    pp("Cache_Check :: Attribute names match")
-  else
-    pp("Cache_Check :: Attribute names do not match with cached version")
-    return(False)
-  end if
-  ; Final check - att values should match
-  check3 = new(nfatt,logical)
-  do i = 0,nfatt-1
-    tmp = opt@$fatts(i)$
-    if typeof(tmp) .eq. "string" .and. (dimsizes(tmp) .ge. 2)
-      topts = array_join(tmp,",")
-    else
-      topts = tmp
-    end if
-    check3(i) = all(topts .eq. fopt@$fatts(i)$)
-    delete(tmp)
-    delete(topts)
-  end do
-  if (all(check3))
-    pp("Cache_Check :: Final check passed")
-  else
-    pp("Cache_Check :: Attribute values do not match with cached version")
-    return(False)
-  end if
-  return(True)
-end
-function cache_clean(fnam,mfnam,opt)
-local cache_status
-begin
-  cache_status=False
-  if (isfilepresent(fnam) .and. isfilepresent(mfnam))
-    cache_status = check_cache_status(mfnam,opt)
-  else
-    pp("Cache_Check :: will get from SysE_DB")
-  end if
-  return(cache_status)
-end
-function slice_data_cached(sopt)
-local fname, fout
-begin
-  if .not. isatt(sopt,"LocalFile")
-    terminate_program("This needs an option - LocalFile (name of local file)")
-  end if
-  fname=sopt@LocalFile
-  mfname=".syse_meta/"+fname
-  system("mkdir -p .syse_meta")
-  if cache_clean(fname,mfname,sopt)
-    pp("Getting data from cache "+fname)
-    var=get_from_file(fname)
-  else
-    var=slice_data(sopt)
-    pp("Writing to cache "+fname)
-    rm_file_if_present(fname)
-    write_to_file(var,fname)
-    pp("Storing metadata")
-    rm_file_if_present(mfname)
-    res=write_meta_to_file(sopt,mfname)
-  end if
-  return(var)
-end
-
 function findFirstTimeOfCollection(DataDir)
 begin
   years=systemfunc("ls "+DataDir)
@@ -1164,22 +1023,10 @@ begin
     opt@DataType="Mean"
   end if
   DataDir=DataDir+"/"+opt@DataFreq+"/"+opt@DataType
-  if str_lower(opt@WhichTime).eq."first"
+  if changeCase(opt@WhichTime,"low").eq."first"
    return(findFirstTimeOfCollection(DataDir))
   end if
-  if  str_lower(opt@WhichTime).eq."last"
+  if  changeCase(opt@WhichTime,"low").eq."last"
     return(findLastTimeOfCollection(DataDir))
   end if
-end
-function cms_read_trend(root,src,vname)
-begin
-  opt=True
-  opt@vname="t_"+vname
-  opt@DataRoot=root
-  opt@DataSource=src
-  opt@DataFreq="Monthly"
-  opt@DataType="Climatology"
-  opt@Statistic="mean"
-  v_trend=slice_data(opt)
-  return(v_trend)
 end

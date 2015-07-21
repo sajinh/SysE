@@ -34,7 +34,8 @@ begin
 end
 procedure rm_file_if_present(filnam)
 begin
-  if (isfilepresent(filnam))
+  if (ncl_file_exists(filnam))
+    pp("removing "+filnam)
     system("rm "+filnam)
   end if
 end

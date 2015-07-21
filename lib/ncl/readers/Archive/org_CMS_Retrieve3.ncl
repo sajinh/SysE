@@ -303,7 +303,7 @@ end if
 
 DataDir=DataDir+"/"+domain@DataFreq+"/"+domain@DataType+"/"
 
-if vname@Access.eq."Local" .and. .not. ncl_file_exists(DataDir)
+if vname@Access.eq."Local" .and. .not.isfilepresent(DataDir)
   print("The directory "+DataDir+" is not available")
   TerminateProgram
 end if
@@ -503,7 +503,7 @@ else
     years=ispan(yr1,yr2,1)
     var=cut_data(DataDir,vname,years,data_tim,data_lat,data_lon)
   else
-    var=fin1->$vname$(domain@months,nstat,{lat1:lat2},{lon1:lon2})
+    var=fin1->$vname$(:,nstat,{lat1:lat2},{lon1:lon2})
   end if
 end if
 
@@ -681,15 +681,6 @@ if isatt(opt,"DataType")
     if ostat.eq."stddev"
       domain@nstat=1
     end if
-    if isatt(opt,"months")
-      if (typeof(opt@months) .eq. "string")
-        domain@months=(month_to_int(opt@months))-1
-      else
-        domain@months=(opt@months)-1
-      end if
-    else
-      domain@months=ispan(0,11,1)
-    end if
   end if
 
   if opt@DataType.eq."lanom"
@@ -758,6 +749,7 @@ end
 
 function slice_data(sopt)
 begin
+
   opt=True
   opt@Variable=sopt@vname
   opt@DataSource=sopt@DataSource
@@ -788,9 +780,6 @@ begin
       else
         opt@Statistic="Mean"
       end if
-     if isatt(sopt,"months")
-       opt@months=sopt@months
-     end if
     end if
   else
     opt@DataType="Anomalies"
@@ -984,90 +973,9 @@ end
 procedure write_to_file(var,fname)
 begin
   fot=fopen_write(fname)
-  if isatt(fname,"vname")
-   vnm = fname@vname
-   fot->$vnm$ = var
-  else
-    fot->var=var
-  end if
-end
-function write_meta_to_file(options,fname)
-local fopt,opts
-begin
-  fopt=1
-  opts = getvaratts(options)
-  nopt = dimsizes(opts)
-  do i = 0,nopt-1
-    tmp = options@$opts(i)$
-    if typeof(tmp) .eq. "string" .and. (dimsizes(tmp) .ge. 2)
-      fopt@$opts(i)$ = array_join(tmp,",")
-    else
-      fopt@$opts(i)$ = tmp
-    end if
-    delete(tmp)
-  end do
-  fname@vname="fopt"
-  write_to_file(fopt,fname)
-  return(True)
+  fot->var=var
 end
 
-function check_cache_status(fnam,opt)
-begin
-  fin   = fopen_read(fnam)
-  fopt  = fin->fopt
-  atts  = getvaratts(opt)
-  natt  = dimsizes(atts)
-  fatts = getvaratts(fopt)
-  nfatt = dimsizes(fatts)
-  ; First check - number of atts should match
-  if (nfatt .ne. natt)
-    return(False)
-  else  
-    pp("Cache_Check :: Number of attributes match")
-  end if
-  ; Second check - the att names should be the same
-  check2 = new(nfatt,logical)
-  do i = 0,nfatt-1
-    check2(i) = any(atts .eq. fatts(i))
-  end do
-  if (all(check2))
-    pp("Cache_Check :: Attribute names match")
-  else
-    pp("Cache_Check :: Attribute names do not match with cached version")
-    return(False)
-  end if
-  ; Final check - att values should match
-  check3 = new(nfatt,logical)
-  do i = 0,nfatt-1
-    tmp = opt@$fatts(i)$
-    if typeof(tmp) .eq. "string" .and. (dimsizes(tmp) .ge. 2)
-      topts = array_join(tmp,",")
-    else
-      topts = tmp
-    end if
-    check3(i) = all(topts .eq. fopt@$fatts(i)$)
-    delete(tmp)
-    delete(topts)
-  end do
-  if (all(check3))
-    pp("Cache_Check :: Final check passed")
-  else
-    pp("Cache_Check :: Attribute values do not match with cached version")
-    return(False)
-  end if
-  return(True)
-end
-function cache_clean(fnam,mfnam,opt)
-local cache_status
-begin
-  cache_status=False
-  if (isfilepresent(fnam) .and. isfilepresent(mfnam))
-    cache_status = check_cache_status(mfnam,opt)
-  else
-    pp("Cache_Check :: will get from SysE_DB")
-  end if
-  return(cache_status)
-end
 function slice_data_cached(sopt)
 local fname, fout
 begin
@@ -1075,19 +983,13 @@ begin
     terminate_program("This needs an option - LocalFile (name of local file)")
   end if
   fname=sopt@LocalFile
-  mfname=".syse_meta/"+fname
-  system("mkdir -p .syse_meta")
-  if cache_clean(fname,mfname,sopt)
-    pp("Getting data from cache "+fname)
-    var=get_from_file(fname)
-  else
-    var=slice_data(sopt)
-    pp("Writing to cache "+fname)
-    rm_file_if_present(fname)
-    write_to_file(var,fname)
-    pp("Storing metadata")
-    rm_file_if_present(mfname)
-    res=write_meta_to_file(sopt,mfname)
+   if (isfilepresent(fname))
+     pp("Getting data from cache "+fname)
+     var=get_from_file(fname)
+   else
+     var=slice_data(sopt)
+     pp("Writing to cache "+fname)
+     write_to_file(var,fname)
   end if
   return(var)
 end
