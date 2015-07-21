@@ -1,19 +1,13 @@
 load "$SysE/lib/ncl/helper_libs.ncl"
-load "$SysE/lib/ncl/readers/syse_get_data.ncl"
+load "$SysE/lib/ncl/writers/syse_put_data.ncl"
 
 src = "WRF-NMM-UPDSST"
-;src = "NCEPR1"
-vname = "hgt"
-lat = True
-lon = True
-time = (/"01Jun1999","30Sep1999"/)
+vnm = "rain"
+lat = True  ; set to True to choose the full available range
+lon = True  ; to select a particular range specify (/lat1,lat2/)
+tim = True
 opt = True
-;opt@Lev=1000
-opt@months = (/"mar","jun"/)
-var=syse_get_mon_mean(src,vname,lat,lon,time,opt)
+opt@months = (/"jun","aug"/) ; we get data for
+var=syse_get_mon_clim(src,vnm,lat,lon,tim,opt)
 info(var)
-exit
-var@shaded=True
-var@map=True
-DebugPlot(var(0,:,:))
-DebugPlot(var(5,:,:))
+

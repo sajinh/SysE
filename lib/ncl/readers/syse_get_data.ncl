@@ -40,12 +40,20 @@ begin
 end
 
 function syse_get_mon_clim(src,vname,lat,lon,time,opt)
-local sopt
+local sopt, tim2
 begin
   sopt=opt
   sopt@DataFreq="Monthly"
   sopt@DataType="Climatology"
   sopt@Statistic="Mean"
+  if typeof(time) .eq. "logical"
+    if isatt(sopt,"months")
+      tim2 =(/"01Jan1904","31Dec1904"/)
+      return(syse_get_data(src,vname,lat,lon,tim2,sopt))
+    else
+      abort("Please provide option opt@months=(/start_month,end_month/)")
+    end if
+  end if
   return(syse_get_data(src,vname,lat,lon,time,sopt))
 end
 
@@ -56,6 +64,15 @@ begin
   sopt@DataFreq="Monthly"
   sopt@DataType="Climatology"
   sopt@Statistic="stddev"
+  if typeof(time) .eq. "logical"
+    if isatt(sopt,"months")
+      tim2 =(/"01Jan1904","31Dec1904"/)
+      return(syse_get_data(src,vname,lat,lon,tim2,sopt))
+    else
+      abort("Please provide option opt@months=(/start_month,end_month/)")
+    end if
+  end if
+
   return(syse_get_data(src,vname,lat,lon,time,sopt))
 end
 
@@ -84,6 +101,14 @@ begin
   sopt@DataFreq="Daily"
   sopt@DataType="Climatology"
   sopt@Statistic="mean"
+  if typeof(time) .eq. "logical"
+    if isatt(sopt,"months") .or. isatt(sopt,"ddmmm")
+      tim2 =(/"01Jan1904","31Dec1904"/)
+      return(syse_get_data(src,vname,lat,lon,tim2,sopt))
+    else
+      abort("Please provide option opt@months=(/start_month,end_month/) or opt@ddmmm=(/ddmmm,ddmmm/)")
+    end if
+  end if
   return(syse_get_data(src,vname,lat,lon,time,sopt))
 end
 
@@ -94,6 +119,14 @@ begin
   sopt@DataFreq="Daily"
   sopt@DataType="Climatology"
   sopt@Statistic="stddev"
+  if typeof(time) .eq. "logical"
+    if isatt(sopt,"months") .or. isatt(sopt,"ddmmm")
+      tim2 =(/"01Jan1904","31Dec1904"/)
+      return(syse_get_data(src,vname,lat,lon,tim2,sopt))
+    else
+      abort("Please provide option opt@months=(/start_month,end_month/) or opt@ddmmm=(/ddmmm,ddmmm/)")
+    end if
+  end if
   return(syse_get_data(src,vname,lat,lon,time,sopt))
 end
 
