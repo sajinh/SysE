@@ -1,5 +1,5 @@
 load "$SysE/lib/ncl/helper_libs.ncl"
-load "$SysE/lib/ncl/writers/syse_put_data.ncl"
+load "$SysE/lib/ncl/syse_db.ncl"
 
 src = "WRF-NMM-UPDSST"
 vname = "rain"

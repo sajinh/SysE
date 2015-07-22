@@ -50,7 +50,7 @@ begin
   end if
   outdir    = create_outdir((/DataRoot,dataSrc,dataFrq,dataTyp/))
   remove_xtra_slashes_of(outdir)
-  make_the_dir(outdir)
+  mkdir_p(outdir)
   ovnm=vnm
   if isatt(sopt,"Lev")
     ovnm=ovnm+"_"+sopt@Lev(0)
@@ -205,7 +205,7 @@ begin
     end if
     outdir    = create_outdir((/DataRoot,dataSrc,dataFrq,dataTyp,""+yrs(iyr)/))
     remove_xtra_slashes_of(outdir)
-    make_the_dir(outdir)
+    mkdir_p(outdir)
     ovnm = vnm
     if isatt(sopt,"Lev")
       ovnm=ovnm+"_"+sopt@Lev(0)
@@ -286,7 +286,7 @@ begin
     end if
     outdir    = create_outdir((/DataRoot,dataSrc,dataFrq,dataTyp,""+yrs(iyr)/))
     remove_xtra_slashes_of(outdir)
-    make_the_dir(outdir)
+    mkdir_p(outdir)
     ovnm = vnm
     if isatt(sopt,"Lev")
       ovnm=ovnm+"_"+sopt@Lev(0)

@@ -24,6 +24,10 @@ begin
   end if
   return(isfilepresent(arg))
 end
+function unx_file_exists(arg)
+begin
+  return(ncl_file_exists(arg))
+end
 function fopen_read(fname)
 begin
   return(addfile(fname,"r"))
@@ -42,4 +46,28 @@ end
 function file_exists(fname)
 begin
   return(systemfunc("test -f "+fname+"; echo $?") .eq. 0)
+end
+procedure make_the_dir(dirName)
+local dirName
+begin
+  system("mkdir -p "+dirName)
+end
+procedure mkdir(dirName)
+begin
+  system("mkdir "+dirName)
+end
+procedure mkdir_p(dirName)
+local root, dirs
+begin
+  root = str_get_cols(dirName,0,0)
+  dirs = str_split(dirName,"/")
+  ndir = dimsizes(dirs)
+  dnm = ""+root
+  do i=0,ndir-1
+    dnm=dnm+"/"+dirs(i)
+    if .not. unx_file_exists(dnm)
+      pp("making "+dnm)
+      mkdir(dnm)
+    end if
+  end do
 end

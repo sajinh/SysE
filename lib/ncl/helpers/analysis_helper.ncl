@@ -251,11 +251,6 @@ begin
   seas=start_and_end_months_of_season(season)
   return(ispan(seas@start_month,seas@end_month,1))
 end
-procedure make_the_dir(dirName)
-local dirName
-begin
-  system("mkdir -p "+dirName)
-end
 procedure add_dimensions(var,att_array)
 begin
  ndims=dimsizes(att_array)

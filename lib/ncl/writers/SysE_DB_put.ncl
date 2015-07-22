@@ -300,7 +300,7 @@ begin
     var@vnam  = var_name
     year=yr1+i-1
     outdir1    = create_outdir((/outdir0,numeral_to_string(year)/))
-    make_the_dir(outdir1)
+    mkdir_p(outdir1)
     start_time=ut_inv_calendar(year,1,\
                        1,0,0,0,tunits,0)
     end_time =ut_inv_calendar(year,12,\
@@ -706,7 +706,7 @@ begin
   if isatt(opt0,"Lev")
    var_name=var_name+"_"+opt0@Lev
   end if
-  make_the_dir(outdir)
+  mkdir_p(outdir)
   outfil    = create_file_if_not_exists(outdir,var_name)
   fout      = addfile(outfil,"c")
   remove_unnecessary_attribute_of(clim2,"nrank")
@@ -816,7 +816,7 @@ begin
   var2&level@long_name="depth"
   var2&level@units="m"
 
-  make_the_dir(outdir)
+  mkdir_p(outdir)
   tvnam = "t_"+vname
   outfil    = create_file_if_not_exists(outdir,tvnam)
   fout      = addfile(outfil,"c")
