@@ -80,6 +80,7 @@ begin
   ntim=0
   cut_tim = new((/2,nyrs/), "double")
   cut_ntim = new(nyrs,"integer")
+  tim_axs = NewList("fifo")
   do iyr = 0,nyrs-1
     if (iyr.eq.0)
       mon1=tim@mo1
@@ -114,17 +115,21 @@ begin
     cut_tim(:,iyr) = tmp_cut_tim
     ntim=ntim+toint(tmp_cut_tim@ntim)
     cut_ntim(iyr) = tmp_cut_tim@ntim
-    if (iyr .eq. 0)
-      tim_axs = new((/nyrs,ntim/), "double")
-    end if
-    tim_axs(iyr,:) = tmp_cut_tim@tims
+    ListPush(tim_axs, tmp_cut_tim@tims)
     delete(tmp_cut_tim)
   end do
   var2=new((/ntim,nlat,nlon/),"float")
+  v2tm=new(ntim,"double")
+  ibeg=0
+  do i=0,nyrs-1
+    iend=ibeg+cut_ntim(i)-1
+    v2tm(ibeg:iend) = ListPop(tim_axs)
+    ibeg=iend+1
+  end do
   add_dimensions(var2,(/"time","lat","lon"/))
   var2&lat=lat
   var2&lon=lon
-  var2&time=ndtooned(tim_axs)
+  var2&time=ndtooned(v2tm)
   var2&time@units=SysE_DB_tunits()
   ntim_per_yr = ntim/nyrs
   lat1=lat(0)
@@ -145,7 +150,7 @@ begin
       do it=0,nvtims-1
         itim = ind(var1&time(it) .eq. var2&time)
         var2(itim,:,:) = var1(it,:,:)
-        pp("doing the loopy")
+        pp(yrs(iyr)+" ... doing the loopy")
      end do
     else
       var2({ct1:ct2},:,:) = var1
@@ -164,8 +169,6 @@ begin
   ndims=dimsizes(newdims)
   newvar=new(newdims,"float")
   newvar=var2
-info(var2)
-info(newvar)
   do i=0,ndims-1
     newvar!i=new_dimnames(i)
   end do
@@ -188,6 +191,7 @@ begin
   end if
   cut_tim = new((/2,nyrs/), "double")
   cut_ntim = new(nyrs,"integer")  
+  tim_axs = NewList("fifo")
   ntim=0
   do iyr = 0,nyrs-1
     if (iyr.eq.0)
@@ -223,17 +227,21 @@ begin
     cut_tim(:,iyr) = tmp_cut_tim
     ntim=ntim+toint(tmp_cut_tim@ntim)
     cut_ntim(iyr) = tmp_cut_tim@ntim
-    if (iyr .eq. 0)
-      tim_axs = new((/nyrs,ntim/), "double")
-    end if
-    tim_axs(iyr,:) = tmp_cut_tim@tims
+    ListPush(tim_axs, tmp_cut_tim@tims)
     delete(tmp_cut_tim)
   end do
   var2=new((/ntim,nlev,nlat,nlon/),"float")
+  v2tm=new(ntim,"double")
+  ibeg=0
+  do i=0,nyrs-1
+    iend=ibeg+cut_ntim(i)-1
+    v2tm(ibeg:iend) = ListPop(tim_axs)
+    ibeg=iend+1
+  end do
   add_dimensions(var2,(/"time","level","lat","lon"/))
   var2&lat=lat
   var2&lon=lon
-  var2&time=ndtooned(tim_axs)
+  var2&time=ndtooned(v2tm)
   var2&time@units=SysE_DB_tunits()
   ntim_per_yr = ntim/nyrs
 
