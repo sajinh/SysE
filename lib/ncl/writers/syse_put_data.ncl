@@ -399,3 +399,28 @@ begin
   return(False)
 end
 
+function syse_put_mon_mean(src,vname,var,opt)
+local sopt, d_root
+begin
+  sopt=opt
+  if .not. isatt(sopt, "DataRoot")
+    d_root = getenv("SysE_DB")
+  else
+   d_root = sopt@DataRoot
+  end if
+  CMS_Write(var,vname,d_root,src,"Monthly","Mean")
+  return(True)
+end
+
+function syse_put_dly_mean(src,vname,var,opt)
+local sopt, d_root
+begin
+  sopt=opt
+  if .not. isatt(sopt, "DataRoot")
+    d_root = getenv("SysE_DB")
+  else
+   d_root = sopt@DataRoot
+  end if
+  CMS_Write(var,vname,d_root,src,"Daily","Mean")
+  return(True)
+end

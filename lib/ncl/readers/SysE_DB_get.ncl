@@ -172,6 +172,9 @@ begin
   do i=0,ndims-1
     newvar!i=new_dimnames(i)
   end do
+  if isatt(newvar,"cut_ntim")
+    delete(newvar@cut_ntim)
+  end if
   newvar@cut_ntim=cut_ntim
 return(newvar)
 end
@@ -300,6 +303,9 @@ begin
     newvar&level=lev ; nhs sep 5 - was not adding level info
     newvar&level@long_name="level" ; nhs sep 5
     newvar&level@units="depends"    ; nhs sep 5
+  end if
+  if isatt(newvar,"cut_tim")
+    delete(newvar@cut_tim)
   end if
   newvar@cut_ntim=cut_ntim
 return(newvar)
