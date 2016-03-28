@@ -15,6 +15,11 @@ C NCLFORTSTART
         subroutine close_file(funit)
         implicit none
         integer funit
-c NCLEND
+C NCLEND
 
-
+C NCLFORTSTART
+        subroutine read_char16_arr(funit,val,nchar)
+        implicit none
+        integer funit,nchar
+        character*16 val(nchar)
+C NCLEND

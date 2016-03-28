@@ -25,7 +25,7 @@ local tmp
 ;      upto seconds in a list
 begin
   ntim=dimsizes(time)
-  tmp=cd_calendar(time,-5)
+  tmp=ut_calendar(time,-5)
   yrs = tmp((/0,ntim-1/),0)
   mon = tmp((/0,ntim-1/),1)
   dys = tmp((/0,ntim-1/),2)
@@ -68,38 +68,38 @@ begin
   edy = sdy
   ; treat first and last month specially
   sdy(0) = time(0)
-  edy(0) = cd_inv_calendar(yr1,mo1,days_in_month(yr1,mo1),hr,mn,sc,tunit,0)
-  sdy(nmo-1) = cd_inv_calendar(yr2,mo2,1,hr,mn,sc,tunit,0)
+  edy(0) = ut_inv_calendar(yr1,mo1,days_in_month(yr1,mo1),hr,mn,sc,tunit,0)
+  sdy(nmo-1) = ut_inv_calendar(yr2,mo2,1,hr,mn,sc,tunit,0)
   edy(nmo-1) = time(ntim-1)
   ; treat first and last years separate from the rest
   kmon=0
   if (nyr .eq. 1)
     do imon=mo1+1,mo2-1
       kmon=kmon+1
-      sdy(kmon) = cd_inv_calendar(yr1,imon,1,hr,mn,sc,tunit,0) 
-      edy(kmon) = cd_inv_calendar(yr1,imon,days_in_month(yr1,imon),hr,mn,sc,tunit,0)
+      sdy(kmon) = ut_inv_calendar(yr1,imon,1,hr,mn,sc,tunit,0) 
+      edy(kmon) = ut_inv_calendar(yr1,imon,days_in_month(yr1,imon),hr,mn,sc,tunit,0)
       pp(kmon)
     end do
   end if
   if (nyr .gt. 1)
     do imon=mo1+1,12
       kmon=kmon+1
-      sdy(kmon) = cd_inv_calendar(yr1,imon,1,hr,mn,sc,tunit,0) 
-      edy(kmon) = cd_inv_calendar(yr1,imon,days_in_month(yr1,imon),hr,mn,sc,tunit,0)
+      sdy(kmon) = ut_inv_calendar(yr1,imon,1,hr,mn,sc,tunit,0) 
+      edy(kmon) = ut_inv_calendar(yr1,imon,days_in_month(yr1,imon),hr,mn,sc,tunit,0)
       pp(kmon)
     end do
     do iyr=yr1+1,yr2-1
       do imon=1,12
         kmon=kmon+1
-        sdy(kmon) = cd_inv_calendar(iyr,imon,1,hr,mn,sc,tunit,0) 
-        edy(kmon) = cd_inv_calendar(iyr,imon,days_in_month(iyr,imon),hr,mn,sc,tunit,0)
+        sdy(kmon) = ut_inv_calendar(iyr,imon,1,hr,mn,sc,tunit,0) 
+        edy(kmon) = ut_inv_calendar(iyr,imon,days_in_month(iyr,imon),hr,mn,sc,tunit,0)
       pp(kmon)
       end do
     end do
     do imon=1,mo2-1
       kmon=kmon+1
-      sdy(kmon) = cd_inv_calendar(yr2,imon,1,hr,mn,sc,tunit,0) 
-      edy(kmon) = cd_inv_calendar(yr2,imon,days_in_month(yr2,imon),hr,mn,sc,tunit,0)
+      sdy(kmon) = ut_inv_calendar(yr2,imon,1,hr,mn,sc,tunit,0) 
+      edy(kmon) = ut_inv_calendar(yr2,imon,days_in_month(yr2,imon),hr,mn,sc,tunit,0)
     pp(kmon)
     end do
   end if
@@ -134,7 +134,7 @@ begin
     abort("time of variable out of range")
   end if
   vtrend = new( dimsizes(time), typeof(var) )
-  tmp=cd_calendar(time,-5)
+  tmp=ut_calendar(time,-5)
   yrs = tmp(:,0)
   if (dimsizes(yrs) .ne. ntim)
     abort("remove_trend :: fatal error")
@@ -335,7 +335,6 @@ end
 
 
 procedure part_regress(y,x1,x2,a1,a2)
-
 begin
 r1y=escorc(x1,y)
 r2y=escorc(x2,y)

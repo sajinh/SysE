@@ -365,11 +365,11 @@ begin
     res@lbLabelBarOn=False
   end if
   if isatt(var,"map")
-    lat = var&lat
-    lon = var&lon
     if isatt(var,"latlon")
       opt@latlon=var@latlon
     else
+      lat = var&lat
+      lon = var&lon
       opt@latlon=(/min(lat),max(lat),min(lon),max(lon)/)
     end if
     mymap(res,opt)
@@ -505,4 +505,9 @@ begin
   plot2 = plot_vector(wks,uvar,vvar,vcres)
   overlay(plot1,plot2)
   return(plot1)
+end
+
+procedure plot_graph(var)
+begin
+  DebugGraph(var)
 end

@@ -283,6 +283,7 @@ begin
       else
         var2({ct1:ct2},ilev,:,:) = var1
       end if
+    delete(var1)
     end do
   end do
 

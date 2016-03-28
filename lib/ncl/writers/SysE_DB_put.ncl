@@ -401,7 +401,8 @@ begin
     time&time=time
     vtims=time({tim1:tim2})
     nvtims=dimsizes(vtims)
-    if dimsizes(tindx).eq.1
+    ntindx = dimsizes(tindx)
+    if ntindx.eq.1
       vanom(t0:t0+nvtims-1,:,:) = var1- (/ vclim(tindx:tindx,:,:) /)
     else
       vanom(t0:t0+nvtims-1,:,:) = var1- (/ vclim(tindx,:,:) /)

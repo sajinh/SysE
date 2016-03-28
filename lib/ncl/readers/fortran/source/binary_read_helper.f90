@@ -21,4 +21,11 @@ subroutine close_file(funit)
   return
 end
 
+subroutine read_char16_arr(funit,val,nchar)
+  implicit none
+  integer, intent(in)::funit,nchar
+  character ::val(nchar)*16
+  read(funit) val
+  return 
+end
 
