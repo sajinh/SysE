@@ -251,6 +251,24 @@ begin
   seas=start_and_end_months_of_season(season)
   return(ispan(seas@start_month,seas@end_month,1))
 end
+function start_and_end_months_of_season_v2(org_seas)                               
+begin                                                                           
+  seas=str_upper(org_seas)                                                      
+  c_seas=stringtochar(seas)                                                     
+  seas=c_seas(0:2)                                                              
+  nmon=dimsizes(c_seas) - 1                                                     
+  iseas=ind(_3mon_seasons.eq.seas) 
+  seas@iseas=iseas                                                              
+  seas@start_month=iseas                                                        
+  seas@end_month=iseas+nmon-1                                                   
+return(seas)                                                                    
+end               
+function months_for_season_v2(season)
+begin
+  seas=start_and_end_months_of_season_v2(season)
+  return(ispan(seas@start_month,seas@end_month,1))
+end
+
 procedure add_dimensions(var,att_array)
 begin
  ndims=dimsizes(att_array)
