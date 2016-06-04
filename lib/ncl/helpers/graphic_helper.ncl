@@ -203,6 +203,11 @@ begin
   res@vcRefMagnitudeF           = mag
   res@vcRefLengthF              = len
 end
+procedure set_vc_scl(res,mag,len)
+begin
+  setvcscl(res,mag,len)
+end
+
 
 procedure setvc(res,color,style,thick)
 ;# Styles are "FillArrow", "LineArrow", "WindBarb", "CurlyVector"
@@ -211,6 +216,11 @@ begin
   res@vcLineArrowColor        = color           ; change vector color
   res@vcLineArrowThicknessF   = thick               ; change vector thickness
   res@vcVectorDrawOrder       = "PostDraw"  
+end
+
+procedure set_vc(res,color,style,thick)
+begin
+  setvc(res,color,style,thick)
 end
 
 procedure setvcanno(res,color,up)
@@ -238,13 +248,23 @@ end
 
 procedure setstring(res,fhgt,left,right)
 begin
-res@gsnStringFontHeightF = fhgt
-res@gsnLeftString=left
-res@gsnRightString=right
+  res@gsnStringFontHeightF = fhgt
+  res@gsnLeftString=left
+  res@gsnRightString=right
 end
 procedure set_string(res,fhgt,left,right)
 begin
   setstring(res,fhgt,left,right)
+end
+procedure set_lcr_string(res,left,center,right)
+begin
+  res@gsnLeftString=left
+  res@gsnCenterString=center
+  res@gsnRightString=right
+end
+procedure set_string_hgt(res,fhgt)
+begin
+  res@gsnStringFontHeightF = fhgt
 end
 
 function openwks(format:string,filename:string,colormap:string)
@@ -333,6 +353,14 @@ end
 procedure nodraw(res)
 begin
   res@gsnDraw=False
+end
+procedure no_draw(res)
+begin
+  res@gsnDraw=False
+end
+procedure no_frame(res)
+begin
+  res@gsnFrame=False
 end
 
 
@@ -433,6 +461,10 @@ begin
   var@shaded=True
   var@map=True
   return(plot_it(wks,var,res))
+end
+function plot_shaded_map(wks,__var,res)
+begin
+  return(map_shaded(wks,__var,res))
 end
 
 

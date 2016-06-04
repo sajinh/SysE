@@ -747,7 +747,7 @@ begin
     CMS_subsetter(domain@tim1,domain@tim2,tims)
   end if
 
-  if (opt.and.isatt(opt,"Lev")) then
+  if (opt.and.(isatt(opt,"Lev") .or. isatt(opt,"lev"))) then
     levs=opt@Lev
     domain@lev1="1"
     domain@lev2="1"
@@ -758,9 +758,9 @@ begin
   opt@DataSource=str_upper(opt@DataSource)
   vname=str_lower(opt@Variable)
   vname@Access="Local"
-  if isatt(opt,"Lev")
+  if isatt(opt,"Lev") 
     vname@Lev=opt@Lev
-  end if
+  end if 
 
   DataDir=opt@DataBaseDir+"/"+opt@DataSource+"/"
   var=CMS_RetrieveData(DataDir,vname,domain) ; opens all the directories
@@ -789,6 +789,9 @@ begin
 ; Optional Parameters
   if isatt(sopt,"Lev")
     opt@Lev=sopt@Lev
+  end if
+  if isatt(sopt,"lev")
+    opt@Lev=sopt@lev
   end if
 
   if isatt(sopt,"months")
@@ -834,6 +837,12 @@ dstring=""
 
 if isatt(sopt,"TimAve")
   if sopt@TimAve
+    nave=nave+1
+    dstring=dstring+"tim"
+  end if
+end if
+if isatt(sopt,"tim_ave")
+  if sopt@tim_ave
     nave=nave+1
     dstring=dstring+"tim"
   end if
