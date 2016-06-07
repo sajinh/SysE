@@ -17,6 +17,17 @@ begin
   sopt@DataSource=src
   sopt@vname=vname
 
+  if isatt(sopt,"local_file")
+    if .not. isatt(sopt,"LocalFile")
+      sopt@LocalFile = sopt@local_file
+    end if
+  end if
+  if isatt(sopt,"purge_local_file")
+    if .not. isatt(sopt,"PurgeLocalFile")
+      sopt@PurgeLocalFile = sopt@purge_local_file
+    end if
+  end if
+
   if isatt(sopt,"LocalFile")
     if isatt(sopt,"PurgeLocalFile")
       if sopt@PurgeLocalFile

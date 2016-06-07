@@ -153,6 +153,11 @@ procedure info(var)
 begin
   printVarSummary(var)
 end
+procedure inspect(var)
+begin
+  printVarSummary(var)
+end
+
 
 function cr()
 begin
