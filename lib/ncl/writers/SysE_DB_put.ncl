@@ -707,6 +707,9 @@ begin
   if isatt(opt0,"Lev")
    var_name=var_name+"_"+opt0@Lev
   end if
+  if isatt(opt0,"lev")
+   var_name=var_name+"_"+opt0@lev
+  end if
   mkdir_p(outdir)
   outfil    = create_file_if_not_exists(outdir,var_name)
   fout      = addfile(outfil,"c")

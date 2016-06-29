@@ -305,8 +305,8 @@ begin
     newvar&level@long_name="level" ; nhs sep 5
     newvar&level@units="depends"    ; nhs sep 5
   end if
-  if isatt(newvar,"cut_tim")
-    delete(newvar@cut_tim)
+  if isatt(newvar,"cut_ntim")
+    delete(newvar@cut_ntim)
   end if
   newvar@cut_ntim=cut_ntim
 return(newvar)
