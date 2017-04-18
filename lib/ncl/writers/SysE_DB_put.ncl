@@ -162,7 +162,6 @@ begin
     tim2=make_daily_time(y1,m1,d1,y2,m2,d2,tunits,ntim)
   end if
 
-
   delete(var&time)
   tindx=var@_tindx
   var!tindx="time"
@@ -227,8 +226,8 @@ begin
     print("Deleting old file")
     system("rm "+outfil)
     print("Adding new file with updated data")
-    fout      = addfile(outfil,"c")
-    write_TLL(fout,vname,var2)
+    ;fout      = addfile(outfil,"c")
+    write_TLL(outfil,vname,var2)
   else
     print("What is wrong ?")
     terminate_program(tim1+"::"+next_time+" : End times do not match")
@@ -254,8 +253,8 @@ begin
     else                       ; start a new file
       remove_unnecessary_attribute_of(vname,"_update")
       outfil    = create_file_if_not_exists(outdir,var_name)
-      fout      = addfile(outfil,"c")
-      write_TLL(fout,vname,var1)
+      ;fout      = addfile(outfil,"c")
+      write_TLL(outfil,vname,var1)
     end if
     delete(var1)
   end do
@@ -284,8 +283,8 @@ begin
     remove_unnecessary_attribute_of(vname,"_update")
  
     outfil    = create_file_if_not_exists(outdir,var_name)
-    fout      = addfile(outfil,"c")
-    write_TLL(fout,vname,var1)
+    ;fout      = addfile(outfil,"c")
+    write_TLL(outfil,vname,var1)
   end if
 end
 
@@ -328,19 +327,19 @@ begin
   end if
   dataFrq   = capitalize(dataFrq)
   var@DataFreq = dataFrq
-  var=make_standard_time_axis_for(var)
+  var2=make_standard_time_axis_for(var)
 
   dataSrc   = str_upper(dataSrc)
   dataTyp   = capitalize(dataTyp)
   outdir    = create_outdir((/dataRoot,dataSrc,dataFrq,dataTyp/))
   remove_xtra_slashes_of(outdir)
 
-  D1        = var@time1
-  D2        = var@time2
+  D1        = var2@time1
+  D2        = var2@time2
   y1        = floattointeger(D1(0,0))
   y2        = floattointeger(D2(0,0))
   pp("Writing "+var_name+" to database")
-  write_data_for_each_year(var,var_name,y1,y2,outdir)
+  write_data_for_each_year(var2,var_name,y1,y2,outdir)
 end
 
 function SysE_FillGaps(var,fill_req)
@@ -464,13 +463,13 @@ begin
     vanom=CMS_Anom (var,vclim,y1,y2)
   end if
   if dataFrq.eq."Daily"
-    ddd      = day_of_year(y1, m1, d1)
-    yyyyddd  = y1*1000 + ddd
+    ;ddd      = day_of_year(y1, m1, d1)
+    ;yyyyddd  = y1*1000 + ddd
     ;vclim_sm = smthClmDayTLL(vclim, opt@NumHarmonics) 
     ; smthClmDayTLL does not work with SST or SSH (missing value data)
     ; switch to constructed_anncycle on Sep 2, 2014 NHS
-    vclim_sm = constructed_anncycle(vclim, opt@NumHarmonics) 
     ;vanom    = calcDayAnomTLL (var, yyyyddd, vclim_sm)
+    vclim_sm = constructed_anncycle(vclim, opt@NumHarmonics) 
     vanom=CMS_Anom (var,vclim_sm,y1,y2)
   end if
 

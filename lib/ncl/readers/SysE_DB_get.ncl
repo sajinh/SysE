@@ -64,7 +64,11 @@ begin
     ret = (/dt1,dt2/)
     ntim = toint(dt2-dt1+1)
     ret@ntim = ntim
-    ret@tims=fspan(dt1,dt2,ntim)
+    if ntim .eq. 1
+      ret@tims=dt1
+    else
+      ret@tims=fspan(dt1,dt2,ntim)
+    end if
     return(ret)
   end if
   return(False)

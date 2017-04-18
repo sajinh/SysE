@@ -1425,3 +1425,22 @@ begin
   end if
   return(365)
 end
+function inject_to_date_template(date,std_date)
+begin
+  tmp=ut_calendar(std_date,-5)
+  new_date=tmp(0,:)
+  do i = 0,dimsizes(date)-1
+    new_date(i) = date(i)
+  end do
+  return(new_date)
+end
+
+function date_to_time(dt,units)
+begin
+  return(ut_inv_calendar(dt(0),dt(1),dt(2),dt(3),dt(4),dt(5),units,0))
+end
+
+function daterange_to_timerange(date1,date2,units)
+begin
+  return((/date_to_time(date1,units),date_to_time(date2,units)/))
+end

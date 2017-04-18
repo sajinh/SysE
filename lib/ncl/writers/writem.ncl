@@ -1,10 +1,14 @@
-procedure write_TLL(fout,vnam,var) 
+procedure write_TLL(outfile,vnam,var) 
+local fout
 begin
-lat=var&lat
-lon=var&lon
-nlat=dimsizes(lat)
-nlon=dimsizes(lon)
-time=var&time
+  fout=fopen_write(outfile)
+  lat=var&lat
+  lon=var&lon
+  tim=var&time
+  nlat=dimsizes(lat)
+  nlon=dimsizes(lon)
+  ntim=dimsizes(tim)
+  setfileoption(fout,"DefineMode",True)
     ;===================================================================
     ; create global attributes of the file
     ;===================================================================
@@ -19,8 +23,8 @@ time=var&time
     ; to -1 and set the unlimited array to True.
     ;===================================================================
         dimNames = (/"time","lat","lon"/)  
-	dimSizes = (/-1,nlat,nlon/) 
-	dimUnlim = (/True,False,False/)   
+	dimSizes = (/ntim,nlat,nlon/) 
+	dimUnlim = (/False,False,False/)   
 	filedimdef(fout,dimNames,dimSizes,dimUnlim)
     ;===================================================================
     ; predefine the the dimensionality of the variables to be written out
@@ -29,10 +33,10 @@ time=var&time
     ; will look like the variable is there. If you do not output the values,
     ; however, then an ncdump -v xxx will reveal that there is no data.
     ;===================================================================
-       filevardef(fout, "time" ,typeof(time),"time")                      
-       filevardef(fout, "lat"  ,typeof(lat),"lat")                          
-       filevardef(fout, "lon"  ,typeof(lon),"lon")                          
-       filevardef(fout, vnam   ,typeof(var), (/"time","lat","lon"/))    
+  filevardef(fout, "time", typeof(tim), getvardims(tim)) 
+  filevardef(fout, "lat",  typeof(lat), getvardims(lat)) 
+  filevardef(fout, "lon",  typeof(lon), getvardims(lon)) 
+  filevardef(fout, vnam,   typeof(var), getvardims(var))
     ;===================================================================
     ; add some attributes
     ; note, since we are copying variables from one file to another,
@@ -42,20 +46,20 @@ time=var&time
     ; do with u.
     ;====================================================================
        ;printVarSummary(var)
-       filevarattdef(fout,vnam,var)
-       filevarattdef(fout,"lat",lat)
-       filevarattdef(fout,"lon",lon)
-       filevarattdef(fout,"time",time)
+       filevarattdef(fout,"time",tim)
+       filevarattdef(fout,"lat", lat)
+       filevarattdef(fout,"lon", lon)
+       filevarattdef(fout, vnam, var)
     ;===================================================================
     ; output only the data values since the dimensionality and such have
     ; been predefined. the "(/", "/)" syntax tells NCL to only output the
     ; data values.
     ;====================================================================
-       fout->time   = (/time/)     
-       fout->lat    = (/lat/)
-       fout->lon    = (/lon/) 
-       fout->$vnam$      = (/var/)
-
+  setfileoption(fout,"DefineMode",False)
+  fout->time   = (/tim/)     
+  fout->lat    = (/lat/)
+  fout->lon    = (/lon/) 
+  fout->$vnam$ = (/var/)
 end
 
 procedure write_TDLL(fout,vnam,var) 

@@ -170,6 +170,25 @@ begin
   newvar@newdims=newdims
   return(newvar)
 end
+function ensure_first_dim(var,first_dim)
+begin
+  rank=rank_of(var)
+  dims=getvardims(var)
+  dindex=ind(dims.eq.first_dim)
+  if dindex .eq. 0
+    return(var)
+  end if
+  if ismissing(dindex)
+    terminate_program("Missing the dimension of "+last_dim)
+  end if
+
+  newdims=dims
+  newdims(0)=dims(dindex)
+  newdims(dindex)=dims(0)
+  newvar=reorder_dims(var,newdims)
+  newvar@newdims=newdims
+  return(newvar)
+end
 
 function reorder_dims_as_in_template(from,to)
 begin
@@ -335,3 +354,54 @@ begin
   arr=stringtoint(string_to_array(str))
   return(vec2(arr))
 end
+
+function reorder_or_not(var)
+begin
+  vdims = getvardims(var)
+  if .not. any(vdims .eq. "time")
+    abort("This routine needs a time dimension")
+  end if
+  if vdims(0) .eq. "time"
+    return(False)
+  else
+   return(True)
+  end if
+end
+
+function slice_time(var,fdat,ldat)
+; we assume that time is the first dimension
+; should we reorder
+; e.g. fdat = (/2006,6,1/)
+;      ldat = (/2007,3,1/)
+begin
+  ans = reorder_or_not(var)
+  if ans
+    new_var = ensure_first_dim(var,"time")
+  else
+    new_var = var
+  end if
+  time=var&time
+  tunits=time@units
+  date_template=time(0)
+  sdat=inject_to_date_template(fdat,date_template)
+  edat=inject_to_date_template(ldat,date_template)
+  slice=daterange_to_timerange(sdat,edat,tunits)
+  if rank_of(var) .eq. 1
+    vslice=new_var({slice(0):slice(1)})
+  end if
+  if rank_of(var) .eq. 2
+    vslice=new_var({slice(0):slice(1)},:)
+  end if
+  if rank_of(var) .eq. 3
+    vslice=new_var({slice(0):slice(1)},:,:)
+  end if
+  if rank_of(var) .eq. 4
+    vslice=new_var({slice(0):slice(1)},:,:,:)
+  end if
+  if ans
+    return(reorder_dims_as_in_template(var,vslice))
+  else
+    return(vslice)
+  end if
+end
+

@@ -392,7 +392,7 @@ begin
   if isatt(var,"nolabel")
     res@lbLabelBarOn=False
   end if
-  if isatt(var,"map")
+  if isatt(var,"map") .or. isatt(res, "mpMaxLonF")
     if isatt(var,"latlon")
       opt@latlon=var@latlon
     else
@@ -400,8 +400,10 @@ begin
       lon = var&lon
       opt@latlon=(/min(lat),max(lat),min(lon),max(lon)/)
     end if
-    mymap(res,opt)
-    plot = gsn_csm_contour_map(wks,var,res)
+    if .not. isatt(res, "mpMaxLonF")
+      mymap(res,opt)
+    end if
+      plot = gsn_csm_contour_map(wks,var,res)
   else
     plot = gsn_csm_contour(wks,var,res)
   end if
