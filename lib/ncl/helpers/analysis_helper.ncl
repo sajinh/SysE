@@ -875,7 +875,7 @@ begin
          k =0
 	;
         nyr=yr2-yr1+1
-        pp(nyr)
+        ;pp(nyr)
         if nyr.eq.1
           _mo2=mo2
         else

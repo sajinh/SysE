@@ -708,8 +708,11 @@ begin
   end if
   vname=opt0@vname
   var_name=vname
-  if isatt(opt0,"Lev") .or. isatt(opt0,"lev")
+  if isatt(opt0,"Lev")
    var_name=var_name+"_"+opt0@Lev
+  end if
+  if isatt(opt0,"lev")
+   var_name=var_name+"_"+opt0@lev
   end if
   mkdir_p(outdir)
   outfil    = create_file_if_not_exists(outdir,var_name)
@@ -729,19 +732,9 @@ begin
   print("Write Climatology to DataBase")
   write_TLLL(fout,vname,clim2)
 end
-function make_cms_trend(vname,root,src,yr_range,lev,__opt)
-local var,opt,sopt
+function make_cms_trend(vname,root,src,yr_range,lev)
+local var,opt
 begin
-  sopt = __opt
-  if isatt(sopt,"query")
-    return("make_cms_trend options are smooth, poisson_grid_fill,linreg")
-  end if
-  SMOOTH_TREND = False
-  if isatt(sopt,"smooth")
-    if sopt@smooth
-      SMOOTH_TREND = True
-    end if
-  end if
   pp("Retrieving requested data for trend construction")
   opt=True
   opt@vname=vname
@@ -751,8 +744,8 @@ begin
   opt@DataFreq="Monthly"
   opt@DataType="Anomaly"
   if lev
-    opt@Lev=sopt@lev
-    if dimsizes(opt@Lev) .gt.1
+    opt@Lev=lev
+    if dimsizes(lev) .gt.1
       abort("Only one level can be provided at a time")
     end if
   end if
@@ -770,29 +763,6 @@ begin
   nlat = dimsizes(var&lat)
   nlon = dimsizes(var&lon)
   nstn = nlat*nlon
-
-  ; spatially smooth the data before finding the trend
-  lon_wrap = False
-  lon = var&lon
-  dlon = fabs(lon(2) - lon(1))
-  if nlon*dlon .ge. (360.0-dlon)
-    lon_wrap = True
-    pp("This data spans all the longitudes")
-  end if
-
-  ; Fill missing values with poisson grid fill, if requested
-  if isatt(sopt,"poisson_grid_fill")
-    if sopt@poisson_grid_fill
-      v1 = var(0,:,:)
-      poisson_grid_fill(var,lon_wrap,1,1000,1.e-2,0.5,0) 
-    end if
-  end if
-
-  if SMOOTH_TREND
-    pp("data will be smoothed spatially with a 9-point filter")
-    var = (/smth9(var,0.5,0.25,lon_wrap)/)
-  end if
-
   vann = new((/nstn,13,nyr/),typeof(var))
   ;1 a 13 element array is used, the
   ; first 12 stores trends for each month/3-mon season
@@ -810,38 +780,16 @@ begin
     is = is+12
   end do
 
-  if isatt(sopt,"linreg")
-    pp("trend is estimated using linear regression")
-    trend2d=regCoef(years,vann)
-  else
-    pp("trend is estimated using Thiel-sen method")
-    ptrend=trend_manken(vann,False,2)
-    trend2d=ptrend(1,:,:)
-    delete(ptrend)
-  end if
-  trend2d=trend2d*10.0 ; time is in units of days - this changes
-                  ; trend from vunits/year to vunits/decade
+  trend2d=regCoef(years,vann)
+  trend2d=trend2d*10 ; time is in units of days - this changes
+                  ; trend from vunits/day to vunits/year
   trend=onedtond(trend2d,(/nlat,nlon,13/))
-  if isatt(sopt,"poisson_grid_fill")
-    if sopt@poisson_grid_fill
-      dims_trend = dimsizes(trend)
-      v2 = conform_dims(dims_trend,v1,(/0,1/))
-      trend = where(ismissing(v2),trend@_FillValue,trend)
-      delete(dims_trend)
-      delete(v2)
-      delete(v1)
-    end if
-  end if
   add_dimensions(trend,(/"lat","lon","time"/))
   trend&lat=var&lat
   trend&lon=var&lon
   trend&time=ispan(1,13,1)
   trend&time@units="months since 1900-01-01"
-  if isatt(opt,"linreg")
-    trend@long_name="trend based on linear regression"
-  else
-    trend@long_name="trend based on Theil-Sen method"
-  end if
+  trend@long_name="trend based on linear regression"
   trend@units=var@units+"/decade"
   trend@yr_range=yr_range
   
@@ -850,12 +798,7 @@ begin
   delete(time)
   delete(vann)
   delete(v2d)
-  if SMOOTH_TREND
-    pp("trend is smoothed spatially with a 9-point filter")
-    return(smth9_Wrap(trend(time|:,lat|:,lon|:),0.5,0.25,lon_wrap))
-  else
-    return(trend(time|:,lat|:,lon|:))
-  end if
+  return(trend(time|:,lat|:,lon|:))
 end
 function write_cms_trend(vname,root,src,var)
 begin

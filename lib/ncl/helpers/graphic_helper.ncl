@@ -60,7 +60,7 @@ res@lbLabelBarOn    = False
 res@cnSmoothingOn   = True
 res@cnFillOn              = True
 res@cnLinesOn             = True
-res@cnLineColor = "black"
+;res@cnLineColor = "black"
 res@cnLineLabelsOn        = False    ; turn off line labels
 res@cnInfoLabelOn         = False
 res@gsnContourNegLineDashPattern = 1 ;
@@ -90,7 +90,7 @@ begin
   res@cnLinesOn             = True
   ;res@cnLineLabelsOn        = False    ; turn off line labels
   ;res@cnInfoLabelOn         = False
-  res@cnLineColor = "black"
+  ;res@cnLineColor = "black"
   res@gsnContourNegLineDashPattern = 1 ;
 end
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -149,7 +149,7 @@ res@lbLabelBarOn    = False
 res@cnSmoothingOn   = True
 res@cnFillOn              = True
 res@cnLinesOn             = True
-res@cnLineColor = "black"
+;res@cnLineColor = "black"
 res@cnLineLabelsOn        = False    ; turn off line labels
 res@cnInfoLabelOn         = False
 res@gsnScalarContour     = True
@@ -178,7 +178,7 @@ begin
   res@cnSmoothingOn   = True
   res@cnFillOn              = True
   res@cnLinesOn             = False
-  res@cnLineColor = "black"
+  ;res@cnLineColor = "black"
   res@cnLineLabelsOn        = False    ; turn off line labels
   res@cnInfoLabelOn         = False
   res@gsnScalarContour     = True
@@ -452,6 +452,12 @@ begin
   return(plot_it(wks,var,res))
 end
 function plot_shaded(wks,__var,res)
+begin
+  var=__var
+  var@shaded=True
+  return(plot_it(wks,var,res))
+end
+function map_contour(wks,__var,res)
 begin
   var=__var
   var@shaded=True

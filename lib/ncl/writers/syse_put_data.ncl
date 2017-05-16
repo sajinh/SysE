@@ -339,8 +339,13 @@ begin
   end if
 end
 
-function syse_put_mon_clim(src,vname,lat,lon,time,opt)
+function syse_put_mon_clim(src,vname,lat,lon,time,sopt)
+local opt
 begin
+  opt = sopt
+  if isatt(sopt,"lev")
+    opt@Lev=sopt@lev
+  end if
   if isatt(opt,"Lev")
     if dimsizes(opt@Lev) .gt. 1
       abort("You can only pass one level at a time")
@@ -351,11 +356,16 @@ begin
   else
     pass_to_old_syse_writer(src,vname,lat,lon,time,opt,"climatology","monthly")
   end if 
-  return(False)
+  return(True)
 end
 
-function syse_put_mon_anom(src,vname,lat,lon,time,opt)
+function syse_put_mon_anom(src,vname,lat,lon,time,sopt)
+local opt
 begin
+  opt = sopt
+  if isatt(sopt,"lev")
+    opt@Lev=sopt@lev
+  end if
   if isatt(opt,"Lev")
     if dimsizes(opt@Lev) .gt. 1
       abort("You can only pass one level at a time")
@@ -366,11 +376,16 @@ begin
   else
     pass_to_old_syse_writer(src,vname,lat,lon,time,opt,"anomaly","monthly")
   end if 
-  return(False)
+  return(True)
 end
 
-function syse_put_dly_clim(src,vname,lat,lon,time,opt)
+function syse_put_dly_clim(src,vname,lat,lon,time,sopt)
+local opt
 begin
+  opt = sopt
+  if isatt(sopt,"lev")
+    opt@Lev=sopt@lev
+  end if
   if isatt(opt,"Lev")
     if dimsizes(opt@Lev) .gt. 1
       abort("You can only pass one level at a time")
@@ -381,11 +396,16 @@ begin
   else
     pass_to_old_syse_writer(src,vname,lat,lon,time,opt,"climatology","daily")
   end if 
-  return(False)
+  return(True)
 end
 
-function syse_put_dly_anom(src,vname,lat,lon,time,opt)
+function syse_put_dly_anom(src,vname,lat,lon,time,sopt)
+local opt
 begin
+  opt = sopt
+  if isatt(sopt,"lev")
+    opt@Lev=sopt@lev
+  end if
   if isatt(opt,"Lev")
     if dimsizes(opt@Lev) .gt. 1
       abort("You can only pass one level at a time")
@@ -396,7 +416,7 @@ begin
   else
     pass_to_old_syse_writer(src,vname,lat,lon,time,opt,"anomaly","daily")
   end if 
-  return(False)
+  return(True)
 end
 
 function syse_put_mon_mean(src,vname,var,opt)
@@ -423,4 +443,87 @@ begin
   end if
   CMS_Write(var,vname,d_root,src,"Daily","Mean")
   return(True)
+end
+
+function syse_put_mon_data(src,vname,var,vtyp,opt)
+local sopt, d_root
+; for writing any datatype to SysE, mean or anom
+begin
+  allowed_types = (/"anomaly","mean"/)
+  if .not. any(vtyp .eq. allowed_types)
+    abort("syse_put_mon_data can only be used to write /mean/ or /anom/")
+  end if
+  pp("In syse_put_mon_data")
+  sopt=opt
+  if .not. isatt(sopt, "DataRoot")
+    d_root = getenv("SysE_DB")
+  else
+    d_root = sopt@DataRoot
+  end if
+  CMS_Write(var,vname,d_root,src,"Monthly",vtyp)
+  return(True)
+end
+
+
+function syse_dly_to_mon(src,vname,lat,lon,time,vtyp,opt)
+local rtime,sten,stim,etim,nmon,rlon,rlat,mvar,imon,Lev,nlev
+begin
+  allowed_types = (/"anomaly","mean"/)
+  if .not. any(vtyp .eq. allowed_types)
+   pp(vtyp)
+    abort("syse_dly_to_mon can only be used to write /mean/ or /anom/")
+  end if
+  pp("In syse_dly_to_mon")
+  sopt=opt
+  if isatt(sopt,"lev")
+    Lev = sopt@lev
+    if dimsizes(Lev) .gt. 1
+      abort("You can only specify one level at a time")
+    end if
+    sopt@Lev=Lev
+  end if
+  if vtyp .eq. "anomaly" 
+    var     = syse_get_dly_anom(src,vname,lat,lon,time,sopt)
+  end if
+  if vtyp .eq. "mean" 
+    var     = syse_get_dly_mean(src,vname,lat,lon,time,sopt)
+  end if
+
+  rtime=var&time
+  sten=daily_to_monthly(rtime)
+  stim=sten[0]
+  etim=sten[1]
+  nmon=dimsizes(stim)
+  rlon = var&lon
+  rlat = var&lat
+  mvar = new( (/nmon, dimsizes(rlat), dimsizes(rlon)/), typeof(var))
+  mvar(0,:,:) = var(0,:,:) ; just a trick to transfer metadata
+  do imon=0,nmon-1
+    m1 = stim(imon)
+    m2 = etim(imon)
+    mvar(imon,:,:) = dim_avg_n(var({m1:m2},:,:),0)
+  end do
+  tunits=sten@tunits
+  yr1=sten@yr1
+  yr2=sten@yr2
+  mo1=sten@mo1
+  mo2=sten@mo2
+  dy1=sten@dy1
+  dy2=sten@dy2
+  mtime = make_monthly_time(yr1,mo1,15,yr2,mo2,15,tunits,nmon)
+  mtime!0="time"
+  mtime&time=mtime
+  mvar&time=mtime
+  if isatt(opt,"Lev")
+    mvar@filNam=vname+"_"+opt@Lev
+  end if
+  return(syse_put_mon_data(src,vname,mvar,vtyp,sopt))
+end
+function syse_dly2mon_mean(src,vname,lat,lon,time,opt)
+begin
+  return(syse_dly_to_mon(src,vname,lat,lon,time,"mean",opt))
+end
+function syse_dly2mon_anom(src,vname,lat,lon,time,opt)
+begin
+  return(syse_dly_to_mon(src,vname,lat,lon,time,"anomaly",opt))
 end
