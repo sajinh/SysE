@@ -6,9 +6,18 @@ make ruby bindings for the underlying C and fortran libraries, in the not too ne
 You need to install NCL. Download and install instructions are available at
 http://www.ncl.ucar.edu/Download/install.shtml
 
+## Define SysE in your environment
+
+Open your .bashrc file and export SysE=$HOME/SysE
+
+(here, it is assumed that you downloaded SysE directly under your home directory).
+
+## Load the libraries from your ncl script
+
 After this you may load the whole collection of libraries using the NCL load 
-command at the top of your scripts. For instance, you may do this after
-defining the environmental variable SysE to point to the root of this collection
+command at the top of your scripts. 
+For instance, 
+
 load "$SysE/lib/ncl/helper_libs.ncl"
 
 ## Creating Fortran Shared Objects
