@@ -1444,3 +1444,24 @@ function daterange_to_timerange(date1,date2,units)
 begin
   return((/date_to_time(date1,units),date_to_time(date2,units)/))
 end
+
+function gauss_xyres(tres)
+begin
+  if any((/"42","63","85","106"/) .eq. tres)
+    pp("getting info about t"+tres+" lat lon")
+  else
+    abort("this function does not support t"+tres+" resolution")
+  end if
+  if tres .eq. "42"
+    return((/64,128/))
+  end if
+  if tres .eq. "63"
+    return((/96,192/))
+  end if
+  if tres .eq. "85"
+    return((/128,256/))
+  end if
+  if tres .eq. "106"
+    return((/160,320/))
+  end if
+end

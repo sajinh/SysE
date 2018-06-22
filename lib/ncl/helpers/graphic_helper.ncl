@@ -284,6 +284,10 @@ begin
   res@trYMinF  = ymin
   res@trYMaxF  = ymax
 end
+procedure set_y1y2(res,ymin,ymax)
+begin
+  sety1y2(res,ymin,ymax)
+end
 
 procedure xt_minmax(res,xmin,xmax,units)
 begin
@@ -446,6 +450,11 @@ begin
   var@shaded=True
   DebugPlot(var)
 end
+procedure contour_plot(__var)
+begin
+  var=__var
+  DebugPlot(var)
+end
 function plot_contour(wks,__var,res)
 begin
   var=__var
@@ -460,7 +469,7 @@ end
 function map_contour(wks,__var,res)
 begin
   var=__var
-  var@shaded=True
+  var@map=True
   return(plot_it(wks,var,res))
 end
 function map_shaded(wks,__var,res)
@@ -497,11 +506,17 @@ begin
   res@lgOrientation          = "horizontal"
   res@lgPerimOn              = False    
    end if
-  if isatt(var,"time")
+  if isatt(var,"time_series")
    pp("Plotting Time series")
-    res@YearInc = var@YearInc
-    res@MonthInc = var@MonthInc
-    res@NoMinor = var@NoMinor
+    if isatt(var,"YearInc")
+      res@YearInc = var@YearInc
+    end if
+    if isatt(var,"MonthInc")
+      res@MonthInc = var@MonthInc
+    end if
+    if isatt(var,"NoMinor")
+      res@NoMinor = var@NoMinor
+    end if
     plot = time_series_plot(wks,var&time,var,res)
   else
     plot = gsn_csm_y(wks,var,res)

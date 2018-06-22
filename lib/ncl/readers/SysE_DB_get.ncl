@@ -1095,6 +1095,16 @@ begin
   end if
   return(cache_status)
 end
+function find_local_file_basename(file_pathname)
+begin
+  split_fname = str_split(file_pathname,"/")
+  npathname = dimsizes(split_fname)
+  if npathname .le. 1
+    return((/"./",split_fname(npathname-1)/))
+  end if
+  return((/"/"+str_join(split_fname(0:npathname-2),"/"),split_fname(npathname-1)/))
+end
+
 function slice_data_cached(sopt)
 local fname, fout
 begin
@@ -1102,8 +1112,12 @@ begin
     terminate_program("This needs an option - LocalFile (name of local file)")
   end if
   fname=sopt@LocalFile
-  mfname=".syse_meta/"+fname
-  system("mkdir -p .syse_meta")
+  local_dir_fnm = find_local_file_basename(fname)
+  local_dir = local_dir_fnm(0)
+  local_fnm = local_dir_fnm(1)
+  mfname=local_dir+"/.syse_meta/"+local_fnm
+  mfdir=local_dir+"/.syse_meta/"
+  system("mkdir -p "+mfdir)
   if cache_clean(fname,mfname,sopt)
     pp("Getting data from cache "+fname)
     var=get_from_file(fname)

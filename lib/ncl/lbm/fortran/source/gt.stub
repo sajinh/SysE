@@ -1,0 +1,24 @@
+C NCLFORTSTART
+        subroutine open_file(funit,fname)
+          implicit none
+          character*(*) fname
+          integer funit
+C NCLEND
+C NCLFORTSTART
+        subroutine read_head(funit)
+        implicit none
+        integer funit
+C NCLEND
+C NCLFORTSTART
+        subroutine read_arr(funit,val,narr)
+        implicit none
+        integer funit,narr
+        dimension val(narr)
+c NCLEND
+
+C NCLFORTSTART
+        subroutine close_file(funit)
+        implicit none
+        integer funit
+c NCLEND
+
