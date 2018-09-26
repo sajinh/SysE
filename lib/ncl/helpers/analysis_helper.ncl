@@ -855,54 +855,51 @@ end if
 end
 
 procedure make_month_time_in_std_format(time,yr1,yr2,mo1,mo2)
-
 begin
 
-;        (CALCULATE TIME AS DAYS SINCE 1900-01-01)
-         
-   if .not.isatt(time,"units")
-     time@units="days since 1900-01-01"
-   end if
-         time@calendar="standard"
-         if isatt(yr1,"day")
-          day=yr1@day
-         else
-           day=15
-         end if
-         hr=0
-         minute=0
-         sec=0
-         k =0
+;(CALCULATE TIME AS DAYS SINCE 1900-01-01)
+  if .not.isatt(time,"units")
+    time@units="days since 1900-01-01"
+  end if
+  time@calendar="standard"
+  if isatt(yr1,"day")
+    day=yr1@day
+  else
+    day=15
+  end if
+  hr=0
+  minute=0
+  sec=0
+  k =0
+;
+  nyr=yr2-yr1+1
+  ;pp(nyr)
+  if nyr.eq.1
+    _mo2=mo2
+  else
+    _mo2=12
+  end if
+  do month=mo1,_mo2
+    time(k)=ut_inv_calendar(yr1,month,day,hr,minute,sec,time@units,0)
+    k=k+1
+   end do
 	;
-        nyr=yr2-yr1+1
-        ;pp(nyr)
-        if nyr.eq.1
-          _mo2=mo2
-        else
-          _mo2=12
-        end if
-	do month=mo1,_mo2
-         time(k)=ut_inv_calendar(yr1,month,day,hr,minute,sec,time@units,0)
-         k=k+1
- 	end do
+  if (yr1.ne.yr2) then
 	;
-	if (yr1.ne.yr2) then
+    do year = yr1+1,yr2-1
+      ;pp("here"+year)
+      do month = 1,12
+       	time(k)=ut_inv_calendar(year,month,day,hr,minute,sec,time@units,0)
+       	k=k+1
+      end do
+    end do
 	;
-       	 do year = yr1+1,yr2-1
-          ;pp("here"+year)
-       	 do month = 1,12
-       	  time(k)=ut_inv_calendar(year,month,day,hr,minute,sec,time@units,0)
-       	  k=k+1
-       	 end do
-       	 end do
+    do month=1,mo2
+      time(k)=ut_inv_calendar(yr2,month,day,hr,minute,sec,time@units,0)
+      k=k+1
+    end do
 	;
-	 do month=1,mo2
-       	  time(k)=ut_inv_calendar(yr2,month,day,hr,minute,sec,time@units,0)
-	  k=k+1
-	 end do
-	;
-	end if
-
+  end if
 end
 
 function months_in_a_year()

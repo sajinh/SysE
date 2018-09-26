@@ -101,11 +101,8 @@ end
 ; Resources to make only shaded contours
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
- procedure myfill(res:logical, opt:logical)
-
-
+procedure myfill(res:logical, opt:logical)
 begin
-  ;res                 = True                ; make plot mods
   if (opt.and.isatt(opt,"clevs")) then
     res@cnLevelSelectionMode = "ExplicitLevels"
     res@cnLevels             = opt@clevs
@@ -121,11 +118,6 @@ begin
   res@cnSmoothingOn   = True
   res@cnFillOn              = True
   res@cnLinesOn             = False
-  ;res@cnLineLabelsOn        = False    ; turn off line labels
-  ;res@cnLineColor = "black"
-  ;res@cnInfoLabelOn         = False
-  ;res@gsnContourNegLineDashPattern = 1 ;
-  ;res@gsnSpreadColors = True
 end
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -384,6 +376,10 @@ begin
     myfill(res,opt)
     res@cnFillMode = "RasterFill"
   end if
+  if isatt(var,"cell_fill")
+    myfill(res,opt)
+    res@cnFillMode = "CellFill"
+  end if
   if isatt(var,"title")
     res@tiMainString=var@title
   end if
@@ -448,6 +444,12 @@ procedure shaded_plot(__var)
 begin
   var=__var
   var@shaded=True
+  DebugPlot(var)
+end
+procedure contour_map(__var)
+begin
+  var=__var
+  var@map=True
   DebugPlot(var)
 end
 procedure contour_plot(__var)

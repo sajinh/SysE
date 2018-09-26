@@ -1,7 +1,5 @@
-procedure write_TLL(outfile,vnam,var) 
-local fout
+procedure write_TLL(fout,vnam,var) 
 begin
-  fout=fopen_write(outfile)
   lat=var&lat
   lon=var&lon
   tim=var&time

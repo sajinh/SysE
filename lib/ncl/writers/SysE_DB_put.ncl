@@ -226,8 +226,8 @@ begin
     print("Deleting old file")
     system("rm "+outfil)
     print("Adding new file with updated data")
-    ;fout      = addfile(outfil,"c")
-    write_TLL(outfil,vname,var2)
+    fout      = addfile(outfil,"c")
+    write_TLL(fout,vname,var2)
   else
     print("What is wrong ?")
     terminate_program(tim1+"::"+next_time+" : End times do not match")
@@ -253,8 +253,8 @@ begin
     else                       ; start a new file
       remove_unnecessary_attribute_of(vname,"_update")
       outfil    = create_file_if_not_exists(outdir,var_name)
-      ;fout      = addfile(outfil,"c")
-      write_TLL(outfil,vname,var1)
+      fout      = addfile(outfil,"c")
+      write_TLL(fout,vname,var1)
     end if
     delete(var1)
   end do
@@ -283,8 +283,8 @@ begin
     remove_unnecessary_attribute_of(vname,"_update")
  
     outfil    = create_file_if_not_exists(outdir,var_name)
-    ;fout      = addfile(outfil,"c")
-    write_TLL(outfil,vname,var1)
+    fout      = addfile(outfil,"c")
+    write_TLL(fout,vname,var1)
   end if
 end
 
