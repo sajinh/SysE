@@ -36,6 +36,11 @@ begin
   return(syse_del_data(src,vnm,"Daily","Anomaly",yrs,opt))
 end
 
+function syse_del_mon_anom(src,vnm,yrs,opt)
+begin
+  return(syse_del_data(src,vnm,"Monthly","Anomaly",yrs,opt))
+end
+
 function syse_del_mon_mean(src,vnm,yrs,opt)
 begin
   return(syse_del_data(src,vnm,"Monthly","Mean",yrs,opt))
