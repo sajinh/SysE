@@ -474,7 +474,11 @@ begin
     ; smthClmDayTLL does not work with SST or SSH (missing value data)
     ; switch to constructed_anncycle on Sep 2, 2014 NHS
     ;vanom    = calcDayAnomTLL (var, yyyyddd, vclim_sm)
-    vclim_sm = constructed_anncycle(vclim, opt@NumHarmonics) 
+    ; 31 aug 2019; my routine constructed_anncycle
+    ; has problems and should not be used
+    ; meanwhile smthClmDayTLL allows missing values over land
+    ;vclim_sm = constructed_anncycle(vclim, opt@NumHarmonics) 
+    vclim_sm = smthClmDayTLL(vclim, opt@NumHarmonics) 
     vanom=CMS_Anom (var,vclim_sm,y1,y2)
   end if
 
