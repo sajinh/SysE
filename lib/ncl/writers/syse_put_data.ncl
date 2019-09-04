@@ -237,6 +237,7 @@ begin
   ; year by year :do
   ;   get mean data
   ;   cal anom
+  ; nhs; 31 aug 19; should smooth dly climate
   ;   wrt anom
   ; end
   sopt=opt
@@ -257,8 +258,29 @@ begin
     d1 = 1
     d2 = days_in_month(1904,m2)
   end if
+  if .not. (isatt(sopt,"NumHarmonics") .or. isatt(sopt,"num_harmonics"))
+    if isatt(sopt,"do_not_smooth_clim") .and. sopt@do_not_smooth_clim
+      msg = "Will not smooth Climatology"
+      sopt@fout_msg = "This climatology was not smoothed as per user specification"
+      pp(msg)
+    else
+      msg="You need to specify the number of harmonics to smooth the data"
+      msg=msg+cr+"        Please use opt@NumHarmonics=(1, 2 or 3)"
+      terminate_program(msg)
+    end if
+  end if
+  if isatt(sopt,"num_harmonics")
+    if isatt(sopt,"NumHarmonics")
+      terminate_program("specify either num_harmonics or NumHarmonics")
+    end if
+    sopt@NumHarmonics=sopt@num_harmonics
+  end if
   vclm = syse_get_dly_clim(src,vnm,lat,lon,tim,sopt)
+  ; nhs 31, aug 2019; added code to smooth daily climatology
+  ; as in old syse_writer
+  vclm_sm = smthClmDayTLL(vclm,sopt@NumHarmonics)
   ntim = dimsizes(vclm&time)
+  delete(vclm)
   do iyr=0,nyr-1
     da1 = sprinti("%0.2i",d1)
     mo1 = integer_to_month(m1)
@@ -272,9 +294,9 @@ begin
     var = syse_get_dly_mean(src,vnm,lat,lon,tims,sopt)
     nvtim = dimsizes(var&time)
     if (ntim .ne. nvtim)
-      var = (/ var - vclm(:ntim-2,:,:) /)
+      var = (/ var - vclm_sm(:ntim-2,:,:) /)
     else
-      var = (/ var - vclm /)
+      var = (/ var - vclm_sm /)
     end if
     dataSrc   = str_upper(src)
     dataFrq   = "Daily"
@@ -301,6 +323,9 @@ begin
     end if
     outfil    = create_file_if_not_exists(outdir,ovnm)
     fout      = fopen_write(outfil)
+    if isatt(sopt,"fout_msg")
+      fout@caution = sopt@fout_msg
+    end if
     print("Write Anomaly of "+yrs(iyr)+" to DataBase")
     if (rank_of(var) .eq. 4)
       write_TLLL(fout,vnm,var)
