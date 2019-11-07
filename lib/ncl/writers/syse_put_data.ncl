@@ -278,9 +278,28 @@ begin
   vclm = syse_get_dly_clim(src,vnm,lat,lon,tim,sopt)
   ; nhs 31, aug 2019; added code to smooth daily climatology
   ; as in old syse_writer
-  vclm_sm = smthClmDayTLL(vclm,sopt@NumHarmonics)
-  ntim = dimsizes(vclm&time)
+  if isatt(sopt,"do_not_smooth_clim") .and. sopt@do_not_smooth_clim
+    vclm_sm = vclm
+  else
+    vclm_sm = vclm
+    vclm_sm = (/ smthClmDayTLL(vclm,sopt@NumHarmonics) /)
+  end if
   delete(vclm)
+  ; In the case we got the climatology for the full period
+  ; make sure to cut out the required period before
+  ; creating anomalies
+  if isatt(sopt,"full_clim_period") .and. sopt@full_clim_period
+    tim_to_cut = vclm_sm@tim_to_cut
+    vclm = vclm_sm({tim_to_cut(0):tim_to_cut(1)},:,:)
+    delete(vclm_sm)
+    vclm_sm = vclm
+    delete(vclm)
+  end if
+  if isatt(sopt,"full_clim_period")
+    delete(sopt@full_clim_period)
+  end if
+
+  ntim = dimsizes(vclm_sm&time)
   do iyr=0,nyr-1
     da1 = sprinti("%0.2i",d1)
     mo1 = integer_to_month(m1)

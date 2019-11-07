@@ -49,6 +49,7 @@ function constructed_anncycle(ssta, nhar)
 local ntims,nlon,nlat,sst1,indx,nmd,sst2,ilen,nxdim \
       , sst3, low, ssta
 begin
+  abort("This function --constructed_anncycle -- should not be used")
   ntims = dimsizes(ssta&time)
   nlon=dimsizes(ssta&lon)
   nlat=dimsizes(ssta&lat)

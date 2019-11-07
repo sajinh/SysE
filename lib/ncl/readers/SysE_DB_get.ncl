@@ -523,6 +523,13 @@ begin
         if .not. isatt(domain,"months")
           if isatt(domain,"ddmmm")
             cut_tim = ddmmm_to_cut(_datFreq,domain@ddmmm,1904)
+            ; nhs if domain@full_clim_period, get all data instead of subset
+            if isatt(domain,"full_clim_period") .and. domain@full_clim_period
+              full_cut_tim = ddmmm_to_cut(_datFreq,(/"01Jan","31Dec"/),1904)
+              tim_to_cut = cut_tim
+              delete(cut_tim)
+              cut_tim = full_cut_tim
+            end if
           else
             cut_tim = ddmmm_to_cut(_datFreq,(/"01Jan","31Dec"/),1904)
           end if
@@ -597,8 +604,13 @@ begin
       var=fin1->$vname$({cut_tim(0):cut_tim(1)},nstat,{lat1:lat2},{lon1:lon2})
     end if
   end if
+  if isatt(domain,"full_clim_period") .and. domain@full_clim_period
+    var@tim_to_cut = tim_to_cut
+    delete(tim_to_cut)
+  end if
   return(var)
 end
+; END of CMS_RetrieveData
  
 procedure space_remover(val)
 ; remove empty spaces from a string
@@ -725,6 +737,9 @@ begin
       abort("opt@ddmm should be a string, e.g, opt@ddmmm=(/'01Jan','15Feb'/)")
     end if
     domain@ddmmm = opt@ddmmm
+    if isatt(opt,"full_clim_period")
+      domain@full_clim_period = opt@full_clim_period
+    end if
   end if
 
   if (opt.and.isatt(opt,"Lat")) then
@@ -806,6 +821,9 @@ begin
       delete(opt@months)
     end if
     opt@ddmmm=sopt@ddmmm
+    if isatt(sopt,"full_clim_period")
+      opt@full_clim_period = sopt@full_clim_period
+    end if
   end if
   
   if isatt(sopt,"DataType")
@@ -1000,8 +1018,9 @@ else
 var=vdat
 end if
 
-return(var)
+  return(var)
 end
+;END of slice_data
 
 function get_from_file(fname)
 begin

@@ -78,7 +78,7 @@ begin
       kmon=kmon+1
       sdy(kmon) = ut_inv_calendar(yr1,imon,1,hr,mn,sc,tunit,0) 
       edy(kmon) = ut_inv_calendar(yr1,imon,days_in_month(yr1,imon),hr,mn,sc,tunit,0)
-      pp(kmon)
+      ;pp(kmon)
     end do
   end if
   if (nyr .gt. 1)
@@ -86,21 +86,21 @@ begin
       kmon=kmon+1
       sdy(kmon) = ut_inv_calendar(yr1,imon,1,hr,mn,sc,tunit,0) 
       edy(kmon) = ut_inv_calendar(yr1,imon,days_in_month(yr1,imon),hr,mn,sc,tunit,0)
-      pp(kmon)
+      ;pp(kmon)
     end do
     do iyr=yr1+1,yr2-1
       do imon=1,12
         kmon=kmon+1
         sdy(kmon) = ut_inv_calendar(iyr,imon,1,hr,mn,sc,tunit,0) 
         edy(kmon) = ut_inv_calendar(iyr,imon,days_in_month(iyr,imon),hr,mn,sc,tunit,0)
-      pp(kmon)
+        ;pp(kmon)
       end do
     end do
     do imon=1,mo2-1
       kmon=kmon+1
       sdy(kmon) = ut_inv_calendar(yr2,imon,1,hr,mn,sc,tunit,0) 
       edy(kmon) = ut_inv_calendar(yr2,imon,days_in_month(yr2,imon),hr,mn,sc,tunit,0)
-    pp(kmon)
+      ;pp(kmon)
     end do
   end if
   sten=[/sdy,edy/]
@@ -933,24 +933,21 @@ end
 
 function month_to_name(month,opt)
 begin 
-
-        months1=(/"January","February","March","April","May","June", "July","August","September","October","November","December"/)
-
-        month_chars=stringtochar(months1)
-        months2=chartostring ( month_chars(:,:2) )
-        months3=chartostring ( month_chars(:,:0) )
-
+  months1=(/"January","February","March","April","May","June", "July","August","September","October","November","December"/)
+  month_chars=stringtochar(months1)
+  months2=chartostring ( month_chars(:,:2) )
+  months3=chartostring ( month_chars(:,:0) )
         
-        if (opt.eq.0)
-          return(months1(month-1)) 
-          print(months1(month-1))
-        end if
-        if (opt.eq.1)
-          return(months2(month-1))
-        end if
-        if (opt.eq.2)
-          return(months3(month-1))
-        end if
+  if (opt.eq.0)
+    return(months1(month-1)) 
+    print(months1(month-1))
+  end if
+  if (opt.eq.1)
+    return(months2(month-1))
+  end if
+  if (opt.eq.2)
+    return(months3(month-1))
+  end if
 end
 
 
@@ -1461,4 +1458,49 @@ begin
   if tres .eq. "106"
     return((/160,320/))
   end if
+end
+
+function make_comp_anom(src,vnm,lat,lon,yrs,opt)
+; Assumptions: 
+;      1. Monthly anomalies are requested
+;      2. Data is available in syse_db
+begin
+  sopt = True
+  months = (/1,12/)
+  ; By default, data from Jan to Dec is returned, but you can ask
+  ; for more or less as needed by using opt@months
+  if isatt(opt,"months")
+    months = opt@months
+  end if
+
+  smon = months(0)
+  emon = months(1)
+  if emon .gt. 12
+    rem = mod(emon,12)
+    emon = rem
+    if rem .eq. 0
+      emon = 12
+    end if
+  end if
+  tim0 = (/"01"+integer_to_month(smon),"15"+integer_to_month(emon)/)
+
+  nyr = dimsizes(yrs)
+  do iyr = 0,nyr-1
+    yr = yrs(iyr)
+      tim = tim0+yr
+    if months(1) .gt. 12
+      yadd = toint(floor((months(1)-1)/12))
+      pp(yadd)
+      tim = (/ tim0(0)+yr, tim0(1)+(yr+yadd) /)
+    end if
+    var = syse_get_mon_anom(src,vnm,lat,lon,tim,sopt)
+    if (iyr .eq. 0)
+      var_cmp = var
+    else
+      var_cmp = (/ var_cmp + var /)
+    end if
+  end do
+
+  var_cmp = (/var_cmp/nyr*1.0/)
+  return(var_cmp)
 end
